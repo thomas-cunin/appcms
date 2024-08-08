@@ -1,0 +1,21 @@
+{#  templates/pages/pages_types_panel.html.twig  #}
+{% extends 'base.html.twig' %}
+{% block body %}
+    <h1>Pages List</h1>
+
+    <div id="pages">Loading...</div>
+
+    <!-- Insert this at the end of your body element, but before the closing tag -->
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        onReady( function() {
+            $(document).ready(function() {
+                $('#pages').initDataTables({{ datatable_settings(datatable) }});
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,11 @@
+controllers:
+    resource:
+        path: ../src/Controller/
+        namespace: App\Controller
+    type: attribute
+manage_routes:
+    resource:
+        path: ../src/Controller/Manage/
+        namespace: App\Controller\Manage
+    type: attribute
+    prefix: /manage

@@ -1,0 +1,22 @@
+parameters:
+  page_types:
+    content:
+      name: 'Content Page'
+      icon: 'ri-file-text-line'
+      description: 'A page to display content with rich text formatting.'
+      color: '#f1c40f'
+    map:
+      name: 'Map Page'
+      icon: 'ri-map-pin-line'
+      description: 'A page that displays an interactive map.'
+      color: '#e74c3c'
+    blog:
+      name: 'Blog Page'
+      icon: 'ri-article-line'
+      description: 'A page to display blog posts and articles.'
+      color: '#8e44ad'
+    gallery:
+      name: 'Gallery Page'
+      icon: 'ri-image-line'
+      description: 'A page to showcase a collection of images.'
+      color: '#2ecc71'

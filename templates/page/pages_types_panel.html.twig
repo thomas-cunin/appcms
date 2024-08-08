@@ -1,0 +1,22 @@
+
+<div class="container">
+    <div class="columns">
+        {% for  pageType in pageTypes %}
+        <div class="column is-4">
+            <div class="card">
+                <div class="card-content">
+                    <div class="content">
+                        <div class="icon">
+                            <i class="{{ pageType.icon }}" style="{{ pageType.color }}"></i>
+                        </div>
+                        <h3>{{ pageType.name }}</h3>
+                        <p>{{ pageType.description }}</p>
+{#                        <a href="{{ path('pageType_edit', { 'id': pageType.id }) }}" class="button is-primary">Edit</a>#}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+</div>
+</div>
+

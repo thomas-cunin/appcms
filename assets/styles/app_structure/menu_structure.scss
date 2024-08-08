@@ -1,0 +1,47 @@
+.box{
+  --bulma-box-shadowvar: 0 0 0 1px #6bc752;
+  --bulma-box-color : #3f4960;
+  --bulma-box-background-color : #ecf1f1;
+}
+.custom-menu{
+  .menu-item {
+    margin-bottom: 10px;
+  }
+  .menu-item .menu-title {
+    background-color: #ecf1f1;
+    color:#3f4960;
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-radius: 8px;
+  }
+  .menu-item .menu-title .icon {
+    margin-right: 10px;
+    font-size: 24px;
+    color: #6bc752;
+    margin-left: 12px;
+  }
+  .menu-item  {
+    .menu-content{
+      margin-left: 20px;
+      transition: all 0.1s ease-in-out;
+      height: 0;
+      max-height: 0;
+      overflow: hidden;
+      &.open {
+        padding-top: 10px;
+        height: auto;
+        max-height: none;
+        overflow: visible;
+      }
+    }
+  }
+  .menu-item .options-button {
+    margin-left: auto;
+  }
+  .menu-item .options-icon {
+    top: 20px;
+    font-size: 20px;
+    color: #6bc752;
+  }
+}
