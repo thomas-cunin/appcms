@@ -19,7 +19,10 @@
 
         {% endblock %}
     </head>
-    <body>
+    <body style="display:flex">
+    {% include 'partials/_sidebar.html.twig' %}
+    <section class="section">
         {% block body %}{% endblock %}
+    </section>
     </body>
 </html>

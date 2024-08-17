@@ -5,3 +5,17 @@
 body{
   background-color: #d3baba;
 }
+
+.sidebar {
+  background-color: white;
+  padding: 20px;
+  width: 240px;
+  // set border right to 1px solid with bulma's $border-color
+  border-right: 2px solid #6bc752;
+  // add inside shadow with bulma's $box-shadow
+  box-shadow: #8cd378;
+  height: 100vh;
+}
+.section {
+  width: calc(100% - 240px);
+}

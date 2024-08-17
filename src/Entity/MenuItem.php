@@ -20,9 +20,6 @@ class MenuItem
     #[ORM\OneToOne(inversedBy: 'menuItem', cascade: ['persist', 'remove'])]
     private ?Page $page = null;
 
-    #[ORM\OneToOne(inversedBy: 'menuItem', cascade: ['persist', 'remove'])]
-    private ?Menu $submenu = null;
-
     #[ORM\Column]
     private ?int $positionIndex = null;
 
@@ -63,18 +60,6 @@ class MenuItem
         return $this;
     }
 
-    public function getSubmenu(): ?Menu
-    {
-        return $this->submenu;
-    }
-
-    public function setSubmenu(?Menu $submenu): static
-    {
-        $this->submenu = $submenu;
-
-        return $this;
-    }
-
     public function getPositionIndex(): ?int
     {
         return $this->positionIndex;
@@ -101,18 +86,14 @@ class MenuItem
 
     public function setItem(Page|Menu $item): static
     {
-        if ($item instanceof Page) {
             $this->setPage($item);
-        } else {
-            $this->setSubmenu($item);
-        }
 
         return $this;
     }
-    // create getItem method for get Menu or Page
+
     public function getItem(): Page|Menu
     {
-        return $this->page ?? $this->submenu;
+        return $this->page;
     }
 
 

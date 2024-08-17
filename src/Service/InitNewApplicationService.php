@@ -36,12 +36,14 @@ class InitNewApplicationService
 
         $mainMenu = new Menu();
         $mainMenu->setName('Main menu');
+        $mainMenu->setSlug('main-menu');
         $mainMenu->setApplication($application);
-        $mainMenu->setType(Menu::TYPE_MAIN);
+        $mainMenu->setMenuType(Menu::TYPE_MAIN);
 
         $unassignedPagesMenu = new Menu();
         $unassignedPagesMenu->setName('Unassigned pages');
-        $unassignedPagesMenu->setType(Menu::TYPE_UNNASIGNED);
+        $unassignedPagesMenu->setSlug('unassigned-pages');
+        $unassignedPagesMenu->setMenuType(Menu::TYPE_UNNASIGNED);
         $unassignedPagesMenu->setApplication($application);
 
         
@@ -72,6 +74,32 @@ class InitNewApplicationService
         $mainMenuItem2->setPositionIndex(1);
 
         $mainMenu->addMenuItem($mainMenuItem2);
+
+        // Menu Our services
+        $menu1 = new Menu();
+        $menu1->setName('Our services');
+        $menu1->setSlug('our-services');
+        $menu1->setMenuType(Menu::TYPE_SUBMENU);
+        $menu1->setApplication($application);
+
+        $mainMenuItem3 = new MenuItem();
+        $mainMenuItem3->setPage($menu1);
+        $mainMenuItem3->setParentMenu($mainMenu);  // Associe le menuItem au menu
+        $mainMenuItem3->setPositionIndex(2);
+
+        $mainMenu->addMenuItem($mainMenuItem3);
+
+//        // Page Service 1
+//        $page3 = new ContentPage();
+//        $page3->setName('Service 1');
+//        $page3->setSlug('service-1');
+//
+//        $menuItem1 = new MenuItem();
+//        $menuItem1->setPage($page3);
+//        $menuItem1->setParentMenu($menu1);  // Associe le menuItem au menu
+//        $menuItem1->setPositionIndex(0);
+//
+//        $menu1->addMenuItem($menuItem1);
 
         $this->entityManager->persist($mainMenu);
         $this->entityManager->persist($unassignedPagesMenu);

@@ -37,8 +37,8 @@
             </div>
             <div class="menu-content">
                 {% for menuItem in menu.menuItems|sort((a, b) => a.positionIndex <=> b.positionIndex) %}
-                    {% if menuItem.submenu is not same as(null) %}
-                        {{ _self.renderMenu(menuItem.submenu,menuItem.uuid) }}
+                    {% if menuItem.page.type == 'menu' %}
+                        {{ _self.renderMenu(menuItem.page,menuItem.uuid) }}
                     {% else %}
                         {% set metadata = get_page_metadata(menuItem.page.type) %}
                         <div class="menu-item" data-menu-item-id="{{ menuItem.uuid }}" data-page-id="{{ menuItem.page.uuid }}">

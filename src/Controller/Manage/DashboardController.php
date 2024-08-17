@@ -18,7 +18,6 @@ class DashboardController extends AbstractController
         Application $application
     ): Response
     {
-        dd($application);
         return $this->render('dashboard/pages_types_panel.html.twig', [
             'controller_name' => 'DashboardController',
         ]);
@@ -34,7 +33,7 @@ class DashboardController extends AbstractController
             return $table->getResponse();
         }
 
-        return $this->render('pages/pages_types_panel.html.twig', [
+        return $this->render('pages/index.html.twig', [
             'datatable' => $table,
         ]);
     }

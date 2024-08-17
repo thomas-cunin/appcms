@@ -1,0 +1,46 @@
+<aside class="menu sidebar">
+    <p class="menu-label">Applciation</p>
+    <ul class="menu-list">
+        <li class=""><a class="has-text-warning"></a></li>
+    </ul>
+    <p class="menu-label">Mon applciation</p>
+    <ul class="menu-list">
+        <li><a href="{{ path('app_structure') }}">Structure</a></li>
+        <li><a href="{{ path('app_pages') }}">Articles</a></li>
+        <li><a class="has-text-danger">Statistiques</a></li>
+    </ul>
+    <p class="menu-label">Communauté</p>
+    <ul class="menu-list">
+        <li><a class="has-text-danger">Utilisateurs</a></li>
+        <li><a class="has-text-danger">Groupes</a></li>
+        <li><a class="has-text-danger">Permissions</a></li>
+    </ul>
+
+    <p class="menu-label">Formulaires</p>
+    <ul class="menu-list">
+        <li><a class="has-text-danger">Formulaires</a></li>
+    </ul>
+    <p class="menu-label">Extensions</p>
+    <ul class="menu-list">
+        <li><a class="has-text-danger">Extensions store</a></li>
+        <li><a class="has-text-danger">Extensions installées</a></li>
+    </ul>
+    <p class="menu-label">Paramètres</p>
+    <ul class="menu-list">
+        <li><a class="has-text-danger">Paramètres de l'application</a></li>
+    </ul>
+
+    <hr/>
+    <ul class="menu-list">
+        {% for lang in ['fr', 'en'] %}
+            <li><a>{{ lang }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+    {#        <p class="menu-label">Paramètres</p> #}
+    {#        <ul class="menu-list"> #}
+    {#            <li><a>Payments</a></li> #}
+    {#            <li><a>Transfers</a></li> #}
+    {#            <li><a>Balance</a></li> #}
+    {#        </ul> #}
+</aside>

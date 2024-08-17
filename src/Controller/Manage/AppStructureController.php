@@ -49,6 +49,8 @@ class AppStructureController extends AbstractController
         Application $application
     ): Response
     {
+        $menuRepository = $this->em->getRepository(Menu::class);
+        $allMenus = $menuRepository->findBy(['application' => $application]);
         return $this->render('app_structure/index.html.twig', [
             'mainMenu' => $application->getMainMenu(),
             'unassignedPagesMenu' => $application->getUnassignedPagesMenu(),
@@ -79,7 +81,6 @@ class AppStructureController extends AbstractController
         $menuItem = $this->em->getRepository(MenuItem::class)->findOneBy(['uuid' => $menuItemUUID]);
         /** @var Menu $parentMenu */
         $parentMenu = $this->em->getRepository(Menu::class)->findOneBy(['uuid' => $parentMenuUUID]);
-
         if (!$menuItem || !$parentMenu || !is_numeric($positionIndex)) {
             return new JsonResponse(['success' => false, 'message' => 'Menu item or parent menu not found.'], 404);
         }
@@ -92,6 +93,7 @@ class AppStructureController extends AbstractController
         $menuItem->setPositionIndex($positionIndex);
 
         $this->em->persist($menuItem);
+        dump($menuItem);
         $this->em->flush();
 
         return new JsonResponse(['success' => true, 'message' => 'Menu order updated successfully.']);

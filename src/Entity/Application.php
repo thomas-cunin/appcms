@@ -28,7 +28,7 @@ class Application
     /**
      * @var Collection<int, Menu>
      */
-    #[ORM\OneToMany(targetEntity: Menu::class, mappedBy: 'application', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Menu::class, mappedBy: 'application', fetch: 'EAGER', orphanRemoval: true)]
     private Collection $menus;
 
     public function __construct()
@@ -44,7 +44,7 @@ class Application
 public function getMainMenu(): ?Menu
 {
     foreach($this->menus as $menu){
-        if($menu->getType() === Menu::TYPE_MAIN){
+        if($menu->getMenuType() === Menu::TYPE_MAIN){
             return $menu;
         }
     }
@@ -54,7 +54,7 @@ public function getMainMenu(): ?Menu
 public function getUnassignedPagesMenu(): ?Menu
 {
     foreach($this->menus as $menu){
-        if($menu->getType() === Menu::TYPE_UNNASIGNED){
+        if($menu->getMenuType() === Menu::TYPE_UNNASIGNED){
             return $menu;
         }
     }

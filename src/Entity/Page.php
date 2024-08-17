@@ -10,13 +10,14 @@ use Symfony\Component\Uid\Uuid;
 #[ORM\Table(name: 'page')]
 #[ORM\InheritanceType('JOINED')]
 #[ORM\DiscriminatorColumn(name: 'type', type: 'string', length: 255)]
-#[ORM\DiscriminatorMap(['content' => 'ContentPage'])]
+#[ORM\DiscriminatorMap(['content' => 'ContentPage','menu'=>'Menu'])]
 class Page
 {
 
 const TYPE_CONTENT = 'content';
 const TYPE_FORM = 'form';
 const TYPE_HOME = 'home';
+const TYPE_MENU = 'menu';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -112,6 +113,7 @@ const TYPE_HOME = 'home';
     {
         return [
             self::TYPE_CONTENT => ContentPage::class,
+            self::TYPE_MENU => Menu::class,
             // Add other mappings here as needed
         ];
     }

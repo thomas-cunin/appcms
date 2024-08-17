@@ -3,19 +3,44 @@
 {% block title %}Structure - Backoffice - {{ application.name }}{% endblock %}
 
 {% block body %}
-    <div class="container">
-        <h2 class="title is-4">Menu de navigation</h2>
-        <div class="menu custom-menu">
-            {{ menuItemMacro.renderMenu(mainMenu) }}
+<div class="container">
+    <nav class="panel">
+        <p class="panel-heading">Ajouter une section</p>
+        <div class="panel-block">
+            <p class="control has-icons-left">
+                <input class="input" type="text" placeholder="Search"/>
+                <span class="icon is-left">
+        <i class="ri-search-line" aria-hidden="true"></i>
+      </span>
+            </p>
+        </div>
+        {% set allPageTypes = get_all_page_types() %}
+        {% for pageType in allPageTypes %}
+            <a class="panel-block">
+    <span class="panel-icon">
+      <i class="{{ pageType.icon }}" aria-hidden="true"></i>
+    </span>
+                {{ pageType.name }}
+            </a>
+        {% endfor %}
+    </nav>
+    <div class="panel">
+        <p class="panel-heading">Structure de mon application</p>
+        <div class="panel-block is-flex-direction-column">
+            <div class="container">
+                <h2 class="title is-4">Menu de navigation</h2>
+                <div class="menu custom-menu">
+                    {{ menuItemMacro.renderMenu(mainMenu) }}
+                </div>
+            </div>
+            <div class="container mt-5">
+                <h2 class="title is-4">Autres pages & menus</h2>
+                <div class="menu custom-menu">
+                    {{ menuItemMacro.renderMenu(unassignedPagesMenu) }}
+                </div>
+            </div>
         </div>
     </div>
-    <div class="container mt-5">
-        <h2 class="title is-4">Autres pages & menus</h2>
-        <div class="menu custom-menu">
-            {{ menuItemMacro.renderMenu(unassignedPagesMenu) }}
-        </div>
-    </div>
-
     <div id="modal" class="modal">
         <div class="modal-background"></div>
         <div class="modal-card">
@@ -32,140 +57,156 @@
             </footer>
         </div>
     </div>
-{% endblock %}
+    {% endblock %}
 
-{% block stylesheets %}
-    {{ parent() }}
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            // Sélectionne toutes les icônes de bascule
-            const toggleIcons = document.querySelectorAll(".toggle-icon");
+    {% block stylesheets %}
+        {{ parent() }}
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                // Sélectionne toutes les icônes de bascule
+                const toggleIcons = document.querySelectorAll(".toggle-icon");
 
-            toggleIcons.forEach(icon => {
-                icon.addEventListener("click", function() {
-                    // Trouve le contenu du menu associé
-                    const menuItem = icon.closest(".menu-item");
-                    const menuContent = menuItem.querySelector(".menu-content");
+                toggleIcons.forEach(icon => {
+                    icon.addEventListener("click", function () {
+                        // Trouve le contenu du menu associé
+                        const menuItem = icon.closest(".menu-item");
+                        const menuContent = menuItem.querySelector(".menu-content");
 
-                    // Ouvre ou ferme le menu
-                    if (menuContent.classList.contains("open")) {
-                        menuContent.classList.remove("open");
-                        icon.querySelector("i").classList.replace("ri-arrow-up-s-line", "ri-arrow-down-s-line");
-                    } else {
-                        menuContent.classList.add("open");
-                        icon.querySelector("i").classList.replace("ri-arrow-down-s-line", "ri-arrow-up-s-line");
-                    }
-                });
-            });
-        });
-
-        function updateMenuOrder(menuItemUUID, parentMenuUUID, positionIndex) {
-            console.log('Updating menu order:', menuItemUUID, parentMenuUUID, positionIndex);
-            fetch(window.origin+'/manage/app/menu/update', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest', // Important for Symfony to recognize AJAX
-                },
-                body: JSON.stringify({
-                    menuItem: menuItemUUID,
-                    parentMenu: parentMenuUUID,
-                    positionIndex: positionIndex
-                })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        console.log('Menu order updated successfully.');
-                    } else {
-                        console.error('Error updating menu order:', data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            // Initialize sortable for menu items
-            const menuItemsContainer = document.querySelectorAll('.menu-content');
-
-            menuItemsContainer.forEach(container => {
-                // don't accept drag of elment with no-draggable class
-                new Sortable(container, {
-                    group: 'nested',
-                    animation: 150,
-                    ghostClass: 'sortable-ghost',
-                    filter: '.no-draggable',
-                    onMove: function (evt) {
-                        const draggedItem = evt.dragged;
-                        const relatedItem = evt.related;
-
-                        // Check if the dragged item is being placed after a non-draggable item
-                        const isAfterNoDraggable = relatedItem.classList.contains('no-draggable') && evt.willInsertAfter;
-
-                        // Prevent the move if trying to drop after a non-draggable item
-                        if (isAfterNoDraggable) {
-                            return false;
+                        // Ouvre ou ferme le menu
+                        if (menuContent.classList.contains("open")) {
+                            menuContent.classList.remove("open");
+                            icon.querySelector("i").classList.replace("ri-arrow-up-s-line", "ri-arrow-down-s-line");
+                        } else {
+                            menuContent.classList.add("open");
+                            icon.querySelector("i").classList.replace("ri-arrow-down-s-line", "ri-arrow-up-s-line");
                         }
-
-                        // Allow the move otherwise
-                        return true;
-                    },
-                    onEnd: function (/**Event*/evt) {
-                        const itemEl = evt.item;  // the dragged item
-
-                        // Get necessary data attributes
-                        const menuItemId = itemEl.getAttribute('data-menu-item-id');
-                        const parentMenuId = itemEl.closest('.menu-content').closest('[data-menu-id]').getAttribute('data-menu-id');
-                        const newPositionIndex = Array.from(container.children).indexOf(itemEl);
-
-                        // Send AJAX request to update the backend
-                        updateMenuOrder(menuItemId,parentMenuId,newPositionIndex);
-                    },
+                    });
                 });
             });
-        });
 
-        document.addEventListener('DOMContentLoaded', function() {
-            // Function to show modal
-            function showModal(content) {
-                const modal = document.getElementById('modal');
-                const modalContent = document.getElementById('modal-content');
-
-                modalContent.innerHTML = content;
-                modal.classList.add('is-active');
-
-                // Add event listener to close buttons
-                modal.querySelector('.delete').addEventListener('click', closeModal);
-                modal.querySelector('.modal-background').addEventListener('click', closeModal);
+            function updateMenuOrder(menuItemUUID, parentMenuUUID, positionIndex) {
+                console.log('Updating menu order:', menuItemUUID, parentMenuUUID, positionIndex);
+                fetch(window.origin + '/manage/app/menu/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest', // Important for Symfony to recognize AJAX
+                    },
+                    body: JSON.stringify({
+                        menuItem: menuItemUUID,
+                        parentMenu: parentMenuUUID,
+                        positionIndex: positionIndex
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            console.log('Menu order updated successfully.');
+                        } else {
+                            console.error('Error updating menu order:', data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
             }
 
-            // Function to close modal
-            function closeModal() {
-                const modal = document.getElementById('modal');
-                modal.classList.remove('is-active');
-            }
+            document.addEventListener('DOMContentLoaded', () => {
+                // Initialize sortable for menu items
+                const menuItemsContainer = document.querySelectorAll('.menu-content');
 
-            // Add click event listeners to all elements with data-action="add-page"
-            const addPageElements = document.querySelectorAll('[data-action="add-page"]');
-            addPageElements.forEach(function(element) {
-                element.addEventListener('click', function() {
-                    const url = element.getAttribute('data-action-url');
+                menuItemsContainer.forEach(container => {
+                    // don't accept drag of elment with no-draggable class
+                    new Sortable(container, {
+                        group: 'nested',
+                        animation: 150,
+                        ghostClass: 'sortable-ghost',
+                        filter: '.no-draggable',
+                        onMove: function (evt) {
+                            const draggedItem = evt.dragged;
+                            const relatedItem = evt.related;
 
-                    fetch(url)
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.content) {
-                                showModal(data.content);
-                            } else {
-                                console.error('Invalid response format:', data);
+                            // Check if the dragged item is being placed after a non-draggable item
+                            const isAfterNoDraggable = relatedItem.classList.contains('no-draggable') && evt.willInsertAfter;
+
+                            // Prevent the move if trying to drop after a non-draggable item
+                            if (isAfterNoDraggable) {
+                                return false;
                             }
-                        })
-                        .catch(error => console.error('Error fetching data:', error));
+
+                            // Allow the move otherwise
+                            return true;
+                        },
+                        onEnd: function (/**Event*/evt) {
+                            const itemEl = evt.item;  // the dragged item
+
+                            // Get necessary data attributes
+                            const menuItemId = itemEl.getAttribute('data-menu-item-id');
+                            const parentMenuId = itemEl.closest('.menu-content').closest('[data-menu-id]').getAttribute('data-menu-id');
+                            const newPositionIndex = Array.from(container.children).indexOf(itemEl);
+
+                            // Send AJAX request to update the backend
+                            updateMenuOrder(menuItemId, parentMenuId, newPositionIndex);
+                        },
+                    });
                 });
             });
-        });
 
-    </script>
-{% endblock %}
+            document.addEventListener('DOMContentLoaded', function () {
+                // Function to show modal
+                function showModal(content) {
+                    const modal = document.getElementById('page_types_panel_modal');
+                    const modalContent = document.getElementById('page_types_panel_modal').querySelector('#modal-content');
+
+                    modalContent.innerHTML = content;
+                    modal.classList.add('is-active');
+
+                    // Add event listener to close buttons
+                    modal.querySelector('.delete').addEventListener('click', closeModal);
+                    modal.querySelector('.modal-background').addEventListener('click', closeModal);
+                }
+
+                // Function to close modal
+                function closeModal() {
+                    const modal = document.getElementById('page_types_panel_modal');
+                    modal.classList.remove('is-active');
+                }
+
+                // Add click event listeners to all elements with data-action="add-page"
+                const addPageElements = document.querySelectorAll('[data-action="add-page"]');
+                addPageElements.forEach(function (element) {
+                    element.addEventListener('click', function () {
+                        const url = element.getAttribute('data-action-url');
+
+                        fetch(url)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.content) {
+                                    showModal(data.content);
+                                    document.querySelectorAll('.card').forEach(function(card){
+                                        card.addEventListener('click',function(){
+                                            var action = card.getAttribute('data-action');
+                                            var actionUrl = card.getAttribute('data-action-url');
+                                            var modal = document.querySelector('.modal');
+                                            var modalContent = document.querySelector('.modal-content');
+                                            modalContent.innerHTML = '';
+                                            modalContent.innerHTML = '<div class="loader"></div>';
+                                            modal.classList.add('is-active');
+                                            fetch(actionUrl)
+                                                .then(response => response.text())
+                                                .then(data => {
+                                                    modalContent.innerHTML = data;
+                                                });
+                                        });
+                                    }); 
+                                } else {
+                                    console.error('Invalid response format:', data);
+                                }
+                            })
+                            .catch(error => console.error('Error fetching data:', error));
+                    });
+                });
+            });
+
+        </script>
+    {% endblock %}

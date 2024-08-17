@@ -49,33 +49,33 @@ class MenuItemPositionListener
      */
     private function updateMenuItemPositions(MenuItem $menuItem, EntityManagerInterface $em, UnitOfWork $uow): void
     {
-        // Get the parent menu and new position
-        $parentMenu = $menuItem->getParentMenu();
-        $newPositionIndex = $menuItem->getPositionIndex();
-
-        if ($parentMenu === null) {
-            return; // Do nothing if parent menu is not set
-        }
-
-        // Fetch all MenuItems with the same parent menu, ordered by positionIndex
-        $menuItems = $em->getRepository(MenuItem::class)->findBy(
-            ['parentMenu' => $parentMenu],
-            ['positionIndex' => 'ASC']
-        );
-
-        // Exclude the current item from the list if it's an update
-        $menuItems = array_filter($menuItems, fn($item) => $item->getId() !== $menuItem->getId());
-
-        // Insert the current item at the new position
-        array_splice($menuItems, $newPositionIndex, 0, [$menuItem]);
-
-        // Update positions
-        /** @var MenuItem $item */
-        foreach ($menuItems as $index => $item) {
-            $item->setPositionIndex($index);
-            $em->persist($item);
-            dump($item->getPage()->getName(),$item);
-            $uow->computeChangeSet($em->getClassMetadata(MenuItem::class), $item);
-        }
+//        // Get the parent menu and new position
+//        $parentMenu = $menuItem->getParentMenu();
+//        $newPositionIndex = $menuItem->getPositionIndex();
+//
+//        if ($parentMenu === null) {
+//            return; // Do nothing if parent menu is not set
+//        }
+//
+//        // Fetch all MenuItems with the same parent menu, ordered by positionIndex
+//        $menuItems = $em->getRepository(MenuItem::class)->findBy(
+//            ['parentMenu' => $parentMenu],
+//            ['positionIndex' => 'ASC']
+//        );
+//
+//        // Exclude the current item from the list if it's an update
+//        $menuItems = array_filter($menuItems, fn($item) => $item->getId() !== $menuItem->getId());
+//
+//        // Insert the current item at the new position
+//        array_splice($menuItems, $newPositionIndex, 0, [$menuItem]);
+//
+//        // Update positions
+//        /** @var MenuItem $item */
+//        foreach ($menuItems as $index => $item) {
+//            $item->setPositionIndex($index);
+//            $em->persist($item);
+//            dump($item->getPage()->getName(),$item);
+//            $uow->computeChangeSet($em->getClassMetadata(MenuItem::class), $item);
+//        }
     }
 }

@@ -3,11 +3,16 @@
 namespace App\Controller\Manage;
 
 use App\Entity\Application;
+use App\Entity\ContentPage;
 use App\Entity\Menu;
+use App\Entity\MenuItem;
+use App\Entity\Page;
 use App\Service\PageTypeService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -40,14 +45,48 @@ class PageController extends AbstractController
 
     #[Route('/app/menu/{parentMenu}/page/add/{type}', name: 'app_menu_add_page')]
     public function addPage(
+        Request $request,
+        EntityManagerInterface $em,
         Application $application,
         #[MapEntity(mapping: ['parentMenu' => 'uuid'])]
         Menu $parentMenu,
         string $type
     ): Response
     {
+
         $pageTypeMetadata = $this->pageTypeService->getPageTypeMetadata($type);
-        return $this->redirectToRoute('app_menu_edit_page', ['menu' => $parentMenu->getUuid(), 'page' => $page->getUuid()]);
+        /** @var ContentPage|Menu $page */
+        $page = new $pageTypeMetadata['entity_class']();
+        $form = $this->createForm($pageTypeMetadata['form_class'], $page);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $menuItem = new MenuItem();
+            $menuItem->setParentMenu($parentMenu);
+            $menuItem->setPositionIndex(count($parentMenu->getMenuItems()));
+            $page->setMenuItem($menuItem);
+            $em->persist($page);
+            $em->flush();
+            return $this->redirectToRoute('app_structure');
+        }
+
+        return $this->render('page/add_page.html.twig', [
+            'form' => $form->createView(),
+            'parentMenu' => $parentMenu,
+            'pageType' => $type,
+        ]);
     }
 
+    #[Route('/app/page/{page}/edit', name: 'app_edit_page')]
+    public function editPage(
+        Request $request,
+        EntityManagerInterface $em,
+        Application $application,
+        Page $page
+    ): Response
+    {
+
+        return $this->render('page_edit/content_page_edit.html.twig', [
+            'page' => $page,
+        ]);
+    }
 }

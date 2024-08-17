@@ -38,4 +38,16 @@ class PageTypeService
     {
         return $this->pageTypes;
     }
+
+    /**
+     * Returns the form class for the given page type.
+     *
+     * @param string $type The page type to get the form class for.
+     * @return string The form class for the given page type.
+     * @throws \InvalidArgumentException If the given page type is invalid.
+     */
+    public function getFormClass(string $type): string
+    {
+        return $this->getPageTypeMetadata($type)['form_class'];
+    }
 }

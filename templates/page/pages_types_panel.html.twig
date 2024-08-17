@@ -1,9 +1,9 @@
 
 <div class="container">
     <div class="columns">
-        {% for  pageType in pageTypes %}
+        {% for pageType in pageTypes %}
         <div class="column is-4">
-            <div class="card">
+            <div class="card" data-action="get-add-page-form" data-action-url="{{ path('app_menu_add_page',{'parentMenu':parentMenu.uuid,'type':pageType.slug}) }}">
                 <div class="card-content">
                     <div class="content">
                         <div class="icon">

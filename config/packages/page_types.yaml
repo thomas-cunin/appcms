@@ -1,22 +1,36 @@
 parameters:
   page_types:
     content:
+      slug: 'content'
       name: 'Content Page'
       icon: 'ri-file-text-line'
       description: 'A page to display content with rich text formatting.'
       color: '#f1c40f'
+      entity_class: 'App\Entity\ContentPage'
+      form_class: 'App\Form\ContentPageType'
     map:
+      slug: 'map'
       name: 'Map Page'
       icon: 'ri-map-pin-line'
       description: 'A page that displays an interactive map.'
       color: '#e74c3c'
     blog:
+      slug: 'blog'
       name: 'Blog Page'
       icon: 'ri-article-line'
       description: 'A page to display blog posts and articles.'
       color: '#8e44ad'
     gallery:
+      slug: 'gallery'
       name: 'Gallery Page'
       icon: 'ri-image-line'
       description: 'A page to showcase a collection of images.'
       color: '#2ecc71'
+    menu:
+      slug: 'menu'
+      name: 'Menu Page'
+      icon: 'ri-menu-line'
+      description: 'A page to display a menu or list of items.'
+      color: '#3498db'
+      entity_class: 'App\Entity\Menu'
+      form_class: 'App\Form\MenuType'

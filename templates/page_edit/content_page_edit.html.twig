@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Edit Content Page</h1>
+
+    <div class="editor-container">
+
+    <div id="editor" class="content-editor"></div>
+    <button class="btn">Update</button>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('initContentPageEditor') }}
+
+{% endblock %}
