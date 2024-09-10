@@ -4,11 +4,11 @@
     import ToolbarButton from "./components/toolbar/ToolbarButton.svelte";
     import StarterKit from '@tiptap/starter-kit';
     import Image from '@tiptap/extension-image';
-    import BubbleMenu from '@tiptap/extension-bubble-menu';
     import {Color} from '@tiptap/extension-color';
     import TextAlign from '@tiptap/extension-text-align';
     import FontFamily from '@tiptap/extension-font-family';
     import {TextStyle} from '@tiptap/extension-text-style';
+    import BubbleMenu from '@tiptap/extension-bubble-menu'
     // import {TaskList} from '@tiptap/extension-task-list';
     // import {TaskItem} from '@tiptap/extension-task-item';
     import {writable} from 'svelte/store';
@@ -46,7 +46,37 @@
                     inline: true,
                 }),
                 BubbleMenu.configure({
-                    element: bubbleMenuContainer,
+                    element: document.querySelector('.toolbar.bubble-menu'),
+                    shouldShow: ({ editor }) => {
+                        // Affichez le menu uniquement si une image, un blockquote ou du texte est sélectionné
+                        return editor.isActive('image') || editor.isActive('blockquote') || editor.state.selection.content().size > 0;
+                    },
+                    tippyOptions: {
+                        maxWidth: 'none',  // Désactive la limitation de largeur pour éviter les coupures
+                        placement: 'top',  // Positionne le menu au-dessus de la sélection
+                        offset: [0, 8],  // Décalage de la position pour mieux aligner le menu
+                        zIndex: 99999,  // Assurez-vous que le menu est au-dessus de tout autre contenu
+                        appendTo: () => document.body,  // Append le menu à body pour éviter les problèmes de z-index
+                        touch: false,  // Désactive le menu pour les appareils tactiles
+                        interactive: true,  // Permettre l'interaction avec le menu (cliquable)
+                        delay: [500, null],  // Délai avant d'afficher le menu (500ms)
+                        popperOptions: {
+                            modifiers: [
+                                {
+                                    name: 'preventOverflow',
+                                    options: {
+                                        boundary: 'viewport',  // Empêche le menu de dépasser les bords du viewport
+                                    },
+                                },
+                                {
+                                    name: 'flip',
+                                    options: {
+                                        fallbackPlacements: ['top', 'bottom'],  // Repositionne le menu si l'espace est limité
+                                    },
+                                },
+                            ],
+                        },
+                    }
                 }),
                 TextStyle,
                 Color,
@@ -175,10 +205,8 @@
     }
 </script>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
-
 <div>
-    <div class="toolbar">
+    <div class="toolbar bubble-menu">
         <ToolbarButton active={$isBold} onClick={toggleBold} label="B" />
         <ToolbarButton active={$isItalic} onClick={toggleItalic} label="I" />
         <ToolbarButton active={$isStrike} onClick={toggleStrike} label="S" />

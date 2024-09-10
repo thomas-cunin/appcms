@@ -1,0 +1,25 @@
+.toolbar {
+  background-color: #c1c1c1;
+  display: flex;
+  gap: 5px;
+  margin-bottom: 10px;
+  button{
+    padding: 5px 10px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    background: white;
+    &:hover{
+      background: #f0f0f0;
+    }
+    &.active{
+      background: red;
+    }
+
+  }
+}
+
+.editor {
+  min-height: 300px;
+  border: 1px solid #ccc;
+  padding: 10px;
+}

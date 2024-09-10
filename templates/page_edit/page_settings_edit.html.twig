@@ -1,0 +1,23 @@
+{{ form_start(form) }}
+    {{ form_errors(form) }}
+    {{ form_row(form.name) }}
+<div class="field">
+    {{ form_label(form.slug) }}
+    <div class="field has-addons ">
+    <p class="control">
+        <a class="button is-static">
+            www.appcms.fr/
+        </a>
+    </p>
+    {{ form_widget(form.slug) }}
+    </div>
+    {{ form_errors(form.slug) }}
+    {{ form_help(form.slug) }}
+</div>
+
+    {{ form_row(form.description) }}
+<div class='w-100 is-flex is-flex-direction-row is-justify-content-end is-align-items-center is-gap-2'>
+    {{ form_row(form.cancel) }}
+    {{ form_row(form.submit) }}
+</div>
+{{ form_end(form) }}

@@ -1,9 +1,9 @@
 @use "../../node_modules/bulma/sass/index";
 @use "../../node_modules/remixicon/fonts/remixicon.css";
 @use "app_structure/menu_structure.scss";
-
+@use "editor/editor.scss";
 body{
-  background-color: #d3baba;
+  background-color: #efefef;
 }
 
 .sidebar {
@@ -13,9 +13,43 @@ body{
   // set border right to 1px solid with bulma's $border-color
   border-right: 2px solid #6bc752;
   // add inside shadow with bulma's $box-shadow
-  box-shadow: #8cd378;
+  box-shadow: inset 0 0 5px #8cd378;
   height: 100vh;
 }
 .section {
   width: calc(100% - 240px);
+}
+
+/* Pour les écrans de bureau */
+@media screen and (min-width: 1024px) {
+  .main-container {
+    display: flex;
+  }
+  .settings-container {
+    width: 320px;
+    flex-shrink: 0;
+  }
+  .preview-container {
+    flex-grow: 1;
+  }
+}
+
+/* Pour les écrans plus petits (tablette et mobile) */
+@media screen and (max-width: 1023px) {
+  .settings-container, .preview-container {
+    width: 100%;
+    display: none;
+  }
+
+  /* Afficher le conteneur de paramètres par défaut */
+  .settings-container.active, .preview-container.active {
+    display: block;
+  }
+
+  /* Boutons pour basculer entre les conteneurs sur mobile/tablette */
+  .toggle-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
 }

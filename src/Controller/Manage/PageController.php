@@ -7,6 +7,7 @@ use App\Entity\ContentPage;
 use App\Entity\Menu;
 use App\Entity\MenuItem;
 use App\Entity\Page;
+use App\Form\PageSettingsType;
 use App\Service\PageTypeService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -15,6 +16,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class PageController extends AbstractController
 {
@@ -81,12 +83,49 @@ class PageController extends AbstractController
         Request $request,
         EntityManagerInterface $em,
         Application $application,
+        #[MapEntity(mapping: ['page' => 'uuid'])]
         Page $page
     ): Response
     {
 
-        return $this->render('page_edit/content_page_edit.html.twig', [
+        return $this->render('page_edit/page_settings_edit.html.twig', [
             'page' => $page,
+        ]);
+    }
+
+    #[Route('/app/page/{page}/settings/edit', name: 'app_edit_page_settings')]
+    public function editPageSettings(
+        Request $request,
+        ValidatorInterface $validator,
+        EntityManagerInterface $em,
+        Application $application,
+        #[MapEntity(mapping: ['page' => 'uuid'])]
+        Page $page
+    ): JsonResponse
+    {
+        $form = $this->createForm(PageSettingsType::class, $page, [
+            'action' => $this->generateUrl('app_edit_page_settings', ['page' => $page->getUuid()]),
+        ]);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->persist($page);
+            $em->flush();
+            return new JsonResponse(['success' => true]);
+        } elseif ($form->isSubmitted()) {
+            return new JsonResponse([
+                'success' => false,
+                'content' => $this->render('page_edit/page_settings_edit.html.twig', [
+                    'form' => $form->createView(),
+                    'page' => $page,
+                ])->getContent(),
+            ]);
+        }
+
+        return new JsonResponse([
+            'content' => $this->render('page_edit/page_settings_edit.html.twig', [
+                'form' => $form->createView(),
+                'page' => $page,
+            ])->getContent(),
         ]);
     }
 }

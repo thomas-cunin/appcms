@@ -7,7 +7,7 @@
             <span>Menu introuvable</span>
         </div>
     {% else %}
-        <div class="menu-item" data-menu-id="{{ menu.uuid }}" {% if menuItemId is not same as(null) %}data-menu-item-id="{{ menuItemId }}"{% endif %}>
+        <div class="menu-item" data-edit-settings-url="{{ path('app_edit_page_settings',{page:menu.uuid}) }}" data-menu-id="{{ menu.uuid }}" {% if menuItemId is not same as(null) %}data-menu-item-id="{{ menuItemId }}"{% endif %}>
             <div class="menu-title">
             <span class="icon">
                 <i class="ri-list-check"></i>
@@ -27,9 +27,9 @@
                         </div>
                         <div class="dropdown-menu" id="dropdown-menu" role="menu">
                             <div class="dropdown-content">
-                                <a href="#" class="dropdown-item">Paramètres</a>
-                                <a href="#" class="dropdown-item">Design</a>
-                                <a href="#" class="dropdown-item has-text-danger">Supprimer</a>
+                                <a class="dropdown-item" data-action="open_page_settings">Paramètres</a>
+                                <a class="dropdown-item">Design</a>
+                                <a class="dropdown-item has-text-danger">Supprimer</a>
                             </div>
                         </div>
                     </div>
@@ -41,7 +41,7 @@
                         {{ _self.renderMenu(menuItem.page,menuItem.uuid) }}
                     {% else %}
                         {% set metadata = get_page_metadata(menuItem.page.type) %}
-                        <div class="menu-item" data-menu-item-id="{{ menuItem.uuid }}" data-page-id="{{ menuItem.page.uuid }}">
+                        <div class="menu-item" data-menu-item-id="{{ menuItem.uuid }}" data-page-id="{{ menuItem.page.uuid }}" data-edit-settings-url="{{ path('app_edit_page_settings',{page:menuItem.page.uuid}) }}">
                             <div class="menu-title">
                                 <span class="icon">
                                     <i class="{{ metadata.icon }}"></i>
@@ -59,7 +59,7 @@
                                         <div class="dropdown-menu" id="dropdown-menu" role="menu">
                                             <div class="dropdown-content">
                                                 <a href="" class="dropdown-item">Editer</a>
-                                                <a href="#" class="dropdown-item">Paramètres</a>
+                                                <a href="#" class="dropdown-item" data-action="open_page_settings">Paramètres</a>
                                                 <a href="#" class="dropdown-item">Design</a>
                                                 <a href="#" class="dropdown-item has-text-danger">Supprimer</a>
                                             </div>

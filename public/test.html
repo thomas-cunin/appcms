@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+    <style>
+        /* Pour les écrans de bureau */
+        @media screen and (min-width: 1024px) {
+            .main-container {
+                display: flex;
+            }
+            .settings-container {
+                width: 320px;
+                flex-shrink: 0;
+            }
+            .preview-container {
+                flex-grow: 1;
+            }
+        }
+
+        /* Pour les écrans plus petits (tablette et mobile) */
+        @media screen and (max-width: 1023px) {
+            .settings-container, .preview-container {
+                width: 100%;
+                display: none;
+            }
+
+            /* Afficher le conteneur de paramètres par défaut */
+            .settings-container.active, .preview-container.active {
+                display: block;
+            }
+
+            /* Boutons pour basculer entre les conteneurs sur mobile/tablette */
+            .toggle-buttons {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="toggle-buttons is-hidden-desktop">
+        <button class="button is-primary" id="show-settings">Show Settings</button>
+        <button class="button is-link" id="show-preview">Show Preview</button>
+    </div>
+    <div class="main-container">
+        <div class="settings-container active">
+            <p>Settings content here...</p>
+        </div>
+        <div class="preview-container">
+            <p>Preview content here...</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // JavaScript pour basculer les conteneurs sur mobile/tablette
+    document.getElementById('show-settings').addEventListener('click', function () {
+        document.querySelector('.settings-container').classList.add('active');
+        document.querySelector('.preview-container').classList.remove('active');
+    });
+
+    document.getElementById('show-preview').addEventListener('click', function () {
+        document.querySelector('.preview-container').classList.add('active');
+        document.querySelector('.settings-container').classList.remove('active');
+    });
+</script>
+</body>
+</html>

@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\PageRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: PageRepository::class)]
 #[ORM\Table(name: 'page')]
@@ -25,9 +26,14 @@ const TYPE_MENU = 'menu';
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\Length(max: 60)]
+    #[Assert\NotBlank]
     private ?string $name = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\Regex('/^[a-z0-9-]+$/')] // Only allow lowercase letters, numbers, and hyphens
+    #[Assert\Length( max: 60)]
+    #[Assert\NotBlank]
     private ?string $slug = null;
 
     #[ORM\Column(length: 255)]
@@ -37,6 +43,10 @@ const TYPE_MENU = 'menu';
 
     #[ORM\OneToOne(mappedBy: 'page', cascade: ['persist', 'remove'])]
     private ?MenuItem $menuItem = null;
+
+    #[ORM\Column(length: 255)]
+    #[Assert\Length(max: 255)]
+    private string $description = '';
 
     public function __construct()
     {
@@ -135,6 +145,18 @@ const TYPE_MENU = 'menu';
         }
 
         $this->menuItem = $menuItem;
+
+        return $this;
+    }
+
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): static
+    {
+        $this->description = $description;
 
         return $this;
     }

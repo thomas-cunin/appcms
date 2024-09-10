@@ -5,6 +5,7 @@ import $ from 'jquery';
 import 'datatables.net';
 import 'datatables.net-bm';
 import './bundles/datatables/js/datatables';
+import Bulma from '@vizuaalog/bulmajs';
 console.log('Hello from app.js');
 global.$ = $;
 global.jQuery = $;
