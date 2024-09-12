@@ -124,9 +124,28 @@
                 });
             };
 
+            const updatePageElement = (elementUID, data) => {
+                if (data.name) {
+                    let element;
+                    if (data.type === 'menu') {
+                        element = document.querySelector(`[data-menu-id="${elementUID}"]`);
+                    } else {
+                        element = document.querySelector(`[data-page-id="${elementUID}"]`);
+                        console.log('page uuid', elementUID);
+                    }
+                    console.log('element', element);
+                    const menuTitle = element.querySelector('.menu-title');
+                    console.log('menuTitle', menuTitle);
+                    const span = menuTitle.querySelector('span.page-name');
+                    console.log('span', span);
+                    span.textContent = data.name;
+                }
+
+            };
+
             // when click on a .menu-item, get closest .menu-item and load ajax content from data-edit-settings-url and put response.content in #page-settings
             const initAppStructure = () => {
-                document.addEventListener('DOMContentLoaded', function () {
+
                     document.querySelectorAll('.menu-item .dropdown-item[data-action="open_page_settings"]').forEach(function (editSettingsLink) {
                         editSettingsLink.addEventListener('click', function (e) {
                             e.preventDefault();
@@ -143,8 +162,7 @@
                                         pageSettingsContainer.innerHTML = data.content;
                                         initForm(pageSettingsContainer.querySelector('form'),(data)=>{
                                             if (data.success){
-                                                document.getElementById('app-structure').innerHTML = data.content;
-                                                initAppStructure();
+                                                updatePageElement(data.updatedData.uuid,data.updatedData);
                                                 // hide #page-settings
                                                 pageSettingsContainer.classList.add('is-hidden');
                                                 document.getElementById('app-structure').classList.remove('is-hidden');
@@ -165,9 +183,27 @@
                                 .catch(error => console.error('Error fetching data:', error));
                         });
                     });
-                });
 
-                document.addEventListener("DOMContentLoaded", function () {
+                    document.querySelectorAll('.menu-item .dropdown-item[data-action="remove_page"]').forEach(function (removePageLink) {
+                        removePageLink.addEventListener('click', function (e) {
+                            e.preventDefault();
+                            const menuItem = removePageLink.closest('.menu-item');
+                            const removePageUrl = menuItem.getAttribute('data-remove-url');
+                            const pageSettingsContainer = document.getElementById('page-settings');
+
+                            fetch(removePageUrl)
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success){
+                                        menuItem.remove();
+                                    } else {
+                                        console.error('Invalid response format:', data);
+                                    }
+                                })
+                                .catch(error => console.error('Error fetching data:', error));
+                        });
+                    });
+
                     // Sélectionne toutes les icônes de bascule
                     const toggleIcons = document.querySelectorAll(".toggle-icon");
 
@@ -187,9 +223,9 @@
                             }
                         });
                     });
-                });
 
-                document.addEventListener('DOMContentLoaded', () => {
+
+
                     // Initialize sortable for menu items
                     const menuItemsContainer = document.querySelectorAll('.menu-content');
 
@@ -228,9 +264,9 @@
                             },
                         });
                     });
-                });
 
-                document.addEventListener('DOMContentLoaded', function () {
+
+
                     // Function to show modal
                     function showModal(content) {
                         const modal = document.getElementById('page_types_panel_modal');
@@ -284,10 +320,9 @@
                                 .catch(error => console.error('Error fetching data:', error));
                         });
                     });
-                });
             };
 
-            initAppStructure();
+            document.addEventListener('DOMContentLoaded', initAppStructure);
 
 
         </script>

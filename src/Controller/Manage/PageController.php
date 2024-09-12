@@ -7,9 +7,11 @@ use App\Entity\ContentPage;
 use App\Entity\Menu;
 use App\Entity\MenuItem;
 use App\Entity\Page;
+use App\Form\DeletePageType;
 use App\Form\PageSettingsType;
 use App\Service\PageTypeService;
 use Doctrine\ORM\EntityManagerInterface;
+use phpDocumentor\Reflection\Type;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -111,11 +113,11 @@ class PageController extends AbstractController
             $em->persist($page);
             $em->flush();
             return new JsonResponse(['success' => true,
-                'content' => $this->render('app_structure/_app_pages_structure_partial.html.twig', [
-                    'mainMenu' => $application->getMainMenu(),
-                    'unassignedPagesMenu' => $application->getUnassignedPagesMenu(),
-                    'application' => $application,
-                ])->getContent(),
+                'updatedData' => [
+                    "type" => $page->getType(),
+                    'name' => $page->getName(),
+                    'uuid' => $page->getUuid(),
+                ],
             ]);
         } elseif ($form->isSubmitted()) {
             return new JsonResponse([
@@ -133,5 +135,53 @@ class PageController extends AbstractController
                 'page' => $page,
             ])->getContent(),
         ]);
+    }
+
+    #[Route('/app/page/{page}/delete', name: 'app_delete_page')]
+    public function deletePage(
+        Request $request,
+        EntityManagerInterface $em,
+        Application $application,
+        #[MapEntity(mapping: ['page' => 'uuid'])]
+        Page $page
+    ): JsonResponse
+    {
+        $uuid = $page->getUuid();
+        $type = $page->getType();
+        $name = $page->getName();
+        $em->remove($page);
+        $em->flush();
+        return new JsonResponse(['success' => true, 'oldData' => ['uuid' => $uuid, 'type' => $type, 'name' => $name]]);
+        // generate form to confirm deletion
+//        $form = $this->createForm(DeletePageType::class, null, [
+//            'action' => $this->generateUrl('app_delete_page', ['page' => $page->getUuid()]),
+//        ]);
+//        $form->handleRequest($request);
+//        if ($form->isSubmitted() && $form->isValid()) {
+//            $uuid = $page->getUuid();
+//            $type = $page->getType();
+//            $name = $page->getName();
+//            $em->remove($page);
+//            $em->flush();
+//            return new JsonResponse(['success' => true, 'oldData' => ['uuid' => $uuid, 'type' => $type, 'name' => $name]]);
+//        } elseif ($form->isSubmitted()) {
+//            return new JsonResponse([
+//                'success' => false,
+//                'content' => $this->render('page/delete_page.html.twig', [
+//                    'form' => $form->createView(),
+//                    'page' => $page,
+//                ])->getContent(),
+//            ]);
+//        }
+//
+//        return new JsonResponse([
+//            'content' => $this->render('page/delete_page.html.twig', [
+//                'form' => $form->createView(),
+//                'page' => $page,
+//            ])->getContent(),
+//        ]);
+
+
+
     }
 }
