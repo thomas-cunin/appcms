@@ -110,7 +110,13 @@ class PageController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $em->persist($page);
             $em->flush();
-            return new JsonResponse(['success' => true]);
+            return new JsonResponse(['success' => true,
+                'content' => $this->render('app_structure/_app_pages_structure_partial.html.twig', [
+                    'mainMenu' => $application->getMainMenu(),
+                    'unassignedPagesMenu' => $application->getUnassignedPagesMenu(),
+                    'application' => $application,
+                ])->getContent(),
+            ]);
         } elseif ($form->isSubmitted()) {
             return new JsonResponse([
                 'success' => false,

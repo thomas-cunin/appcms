@@ -46,7 +46,8 @@ class AppStructureController extends AbstractController
      */
     #[Route('/app/content', name: 'app_structure')]
     public function index(
-        Application $application
+        Application $application,
+        Request $request
     ): Response
     {
         $menuRepository = $this->em->getRepository(Menu::class);
