@@ -55,13 +55,15 @@ class PageController extends AbstractController
         #[MapEntity(mapping: ['parentMenu' => 'uuid'])]
         Menu $parentMenu,
         string $type
-    ): Response
+    ): JsonResponse
     {
 
         $pageTypeMetadata = $this->pageTypeService->getPageTypeMetadata($type);
         /** @var ContentPage|Menu $page */
         $page = new $pageTypeMetadata['entity_class']();
-        $form = $this->createForm($pageTypeMetadata['form_class'], $page);
+        $form = $this->createForm($pageTypeMetadata['form_class'], $page, [
+            'action' => $this->generateUrl('app_menu_add_page', ['parentMenu' => $parentMenu->getUuid(), 'type' => $type]),
+        ]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $menuItem = new MenuItem();
@@ -70,13 +72,19 @@ class PageController extends AbstractController
             $page->setMenuItem($menuItem);
             $em->persist($page);
             $em->flush();
-            return $this->redirectToRoute('app_structure');
+            return new JsonResponse(['success' => true, 'newData' => [
+                'type' => $page->getType(),
+                'name' => $page->getName(),
+                'uuid' => $page->getUuid(),
+            ]]);
         }
 
-        return $this->render('page/add_page.html.twig', [
-            'form' => $form->createView(),
-            'parentMenu' => $parentMenu,
-            'pageType' => $type,
+        return new JsonResponse([
+            'content' => $this->render('page/_add_page.html.twig', [
+                'form' => $form->createView(),
+                'parentMenu' => $parentMenu,
+                'pageType' => $type,
+            ])->getContent(),
         ]);
     }
 
@@ -90,7 +98,7 @@ class PageController extends AbstractController
     ): Response
     {
 
-        return $this->render('page_edit/page_settings_edit.html.twig', [
+        return $this->render('page_edit/content_page_edit.html.twig', [
             'page' => $page,
         ]);
     }
@@ -146,6 +154,8 @@ class PageController extends AbstractController
         Page $page
     ): JsonResponse
     {
+        $keepChildren = $request->get('keepChildren', false);
+        dump($keepChildren);
         $uuid = $page->getUuid();
         $type = $page->getType();
         $name = $page->getName();

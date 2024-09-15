@@ -57,15 +57,13 @@
 </div>
 
 <script>
-    // JavaScript pour basculer les conteneurs sur mobile/tablette
-    document.getElementById('show-settings').addEventListener('click', function () {
-        document.querySelector('.settings-container').classList.add('active');
-        document.querySelector('.preview-container').classList.remove('active');
-    });
-
-    document.getElementById('show-preview').addEventListener('click', function () {
-        document.querySelector('.preview-container').classList.add('active');
-        document.querySelector('.settings-container').classList.remove('active');
+// when page is load fetch data from https://j0b1sjnx18.execute-api.eu-west-3.amazonaws.com/trello?BoardID=board1 and console log
+// the result
+window.addEventListener('load', function() {
+    fetch('https://j0b1sjnx18.execute-api.eu-west-3.amazonaws.com/trello?BoardID=board1')
+        .then(response => response.json())
+        .then(data => console.log(data))
+        .catch(error => console.error(error))
     });
 </script>
 </body>

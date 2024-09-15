@@ -34,6 +34,7 @@
     const isBlockquote = writable(false);
     const currentColor = writable('#000000');
     const currentFontFamily = writable(false);
+    const currentStyle = writable('P'); // Default to Paragraph
 
     let localColor = '#000000';
 
@@ -45,39 +46,7 @@
                 Image.configure({
                     inline: true,
                 }),
-                BubbleMenu.configure({
-                    element: document.querySelector('.toolbar.bubble-menu'),
-                    shouldShow: ({ editor }) => {
-                        // Affichez le menu uniquement si une image, un blockquote ou du texte est sélectionné
-                        return editor.isActive('image') || editor.isActive('blockquote') || editor.state.selection.content().size > 0;
-                    },
-                    tippyOptions: {
-                        maxWidth: 'none',  // Désactive la limitation de largeur pour éviter les coupures
-                        placement: 'top',  // Positionne le menu au-dessus de la sélection
-                        offset: [0, 8],  // Décalage de la position pour mieux aligner le menu
-                        zIndex: 99999,  // Assurez-vous que le menu est au-dessus de tout autre contenu
-                        appendTo: () => document.body,  // Append le menu à body pour éviter les problèmes de z-index
-                        touch: false,  // Désactive le menu pour les appareils tactiles
-                        interactive: true,  // Permettre l'interaction avec le menu (cliquable)
-                        delay: [500, null],  // Délai avant d'afficher le menu (500ms)
-                        popperOptions: {
-                            modifiers: [
-                                {
-                                    name: 'preventOverflow',
-                                    options: {
-                                        boundary: 'viewport',  // Empêche le menu de dépasser les bords du viewport
-                                    },
-                                },
-                                {
-                                    name: 'flip',
-                                    options: {
-                                        fallbackPlacements: ['top', 'bottom'],  // Repositionne le menu si l'espace est limité
-                                    },
-                                },
-                            ],
-                        },
-                    }
-                }),
+
                 TextStyle,
                 Color,
                 TextAlign.configure({
@@ -94,7 +63,7 @@
     });
 
     function updateTextArea() {
-        document.querySelector('#content_page_editor_content').value = editor.getHTML();
+        // document.querySelector('#content_page_editor_content').value = editor.getHTML();
     }
     function updateButtonStates() {
         updateTextArea();
@@ -118,6 +87,16 @@
         currentColor.set(attrs.color || '#000000');
         localColor = attrs.color || '#000000';
         currentFontFamily.set(attrs.fontFamily);
+
+        if (editor.isActive('heading', { level: 1 })) {
+            currentStyle.set('H1');
+        } else if (editor.isActive('heading', { level: 2 })) {
+            currentStyle.set('H2');
+        } else if (editor.isActive('heading', { level: 3 })) {
+            currentStyle.set('H3');
+        } else {
+            currentStyle.set('P');
+        }
     }
 
     function toggleBold() {
@@ -203,17 +182,54 @@
         event.preventDefault();
         action();
     }
+
+    const headingTexts = writable({
+        H1: 'Titre 1',
+        H2: 'Titre 2',
+        H3: 'Titre 3',
+        P: 'Paragraphe',
+    })
 </script>
 
 <div>
-    <div class="toolbar bubble-menu">
+    <div class="toolbar">
         <ToolbarButton active={$isBold} onClick={toggleBold} label="B" />
         <ToolbarButton active={$isItalic} onClick={toggleItalic} label="I" />
         <ToolbarButton active={$isStrike} onClick={toggleStrike} label="S" />
-        <ToolbarButton active={$isHeading1} onClick={() => insertHeading(1)} label="H1" />
-        <ToolbarButton active={$isHeading2} onClick={() => insertHeading(2)} label="H2" />
-        <ToolbarButton active={$isHeading3} onClick={() => insertHeading(3)} label="H3" />
-        <ToolbarButton active={$isParagraph} onClick={setParagraph} label="P" />
+        <div class="dropdown is-hoverable">
+            <div class="dropdown-trigger">
+                <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
+                    <span>{$headingTexts[$currentStyle]}</span>
+                    <span class="icon is-small">
+                    <i class="ri-arrow-down-s-line"></i>
+                </span>
+                </button>
+            </div>
+            <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                <div class="dropdown-content">
+                    <a href="#"
+                       class="dropdown-item { $isHeading1 ? 'is-active' : '' }"
+                       on:click|preventDefault={() => insertHeading(1)}>
+                        <h1>Titre 1</h1>
+                    </a>
+                    <a href="#"
+                       class="dropdown-item { $isHeading2 ? 'is-active' : '' }"
+                       on:click|preventDefault={() => insertHeading(2)}>
+                        <h2>Titre 2</h2>
+                    </a>
+                    <a href="#"
+                       class="dropdown-item { $isHeading3 ? 'is-active' : '' }"
+                       on:click|preventDefault={() => insertHeading(3)}>
+                        <h3>Titre 3</h3>
+                    </a>
+                    <a href="#"
+                       class="dropdown-item { $isParagraph ? 'is-active' : '' }"
+                       on:click|preventDefault={setParagraph}>
+                        <p>Paragraphe</p>
+                    </a>
+                </div>
+            </div>
+        </div>
         <ToolbarButton active={$isBulletList} onClick={insertBulletList} label="UL" />
         <ToolbarButton active={$isOrderedList} onClick={insertOrderedList} label="OL" />
         <ToolbarButton onClick={insertImage} label="IMG" />

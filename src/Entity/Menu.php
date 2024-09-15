@@ -31,6 +31,7 @@ class Menu extends Page
     public function __construct()
     {
         parent::__construct();
+        $this->menuType = self::TYPE_SUBMENU;
         $this->menuItems = new ArrayCollection();
     }
 

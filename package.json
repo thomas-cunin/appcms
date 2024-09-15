@@ -24,6 +24,7 @@
     },
     "dependencies": {
         "@babel/preset-react": "^7.24.7",
+        "@sweetalert2/theme-bulma": "^5.0.18",
         "@tiptap/core": "^2.6.4",
         "@tiptap/extension-bubble-menu": "^2.6.4",
         "@tiptap/extension-color": "^2.6.4",
@@ -49,6 +50,7 @@
         "react": "^18.3.1",
         "react-dom": "^18.3.1",
         "remixicon": "^4.3.0",
+        "sweetalert2": "^11.14.0",
         "tippy.js": "^6.3.7"
     }
 }

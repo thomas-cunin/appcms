@@ -7,7 +7,7 @@
             <span>Menu introuvable</span>
         </div>
     {% else %}
-        <div class="menu-item" data-edit-settings-url="{{ path('app_edit_page_settings',{page:menu.uuid}) }}"  data-remove-url="{{ path('app_delete_page',{page:menu.uuid}) }}" data-menu-id="{{ menu.uuid }}" {% if menuItemId is not same as(null) %}data-menu-item-id="{{ menuItemId }}"{% endif %}>
+        <div class="menu-item" data-edit-settings-url="{{ path('app_edit_page_settings',{page:menu.uuid}) }}" data-remove-url="{{ path('app_delete_page',{page:menu.uuid}) }}" data-menu-id="{{ menu.uuid }}" {% if menuItemId is not same as(null) %}data-menu-item-id="{{ menuItemId }}"{% endif %}>
             <div class="menu-title">
             <span class="icon">
                 <i class="ri-list-check"></i>
@@ -58,7 +58,7 @@
                                         </div>
                                         <div class="dropdown-menu" id="dropdown-menu" role="menu">
                                             <div class="dropdown-content">
-                                                <a href="" class="dropdown-item">Editer</a>
+                                                <a href="{{ path('app_edit_page',{page:menuItem.page.uuid}) }}" class="dropdown-item">Editer</a>
                                                 <a href="#" class="dropdown-item" data-action="open_page_settings">Paramètres</a>
                                                 <a href="#" class="dropdown-item">Design</a>
                                                 <a href="#" class="dropdown-item has-text-danger" data-action="remove_page">Supprimer</a>

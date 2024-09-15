@@ -22,6 +22,7 @@ Encore
      */
     .addEntry('app', './assets/app.js')
     .addEntry('initContentPageEditor', './assets/js/initContentPageEditor.js')
+    .addEntry('app_structure', './assets/js/app_structure.js')
     .addEntry('appStyle', './assets/styles/app.scss')
     // .addStyleEntry('appStyle', './assets/styles/app.scss')
 

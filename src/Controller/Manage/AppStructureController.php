@@ -59,6 +59,23 @@ class AppStructureController extends AbstractController
         ]);
     }
 
+    // a route for get appstructure html
+    #[Route('/app/content/structure/partial', name: 'app_structure_partial')]
+    public function getStructurePartial(
+        Application $application,
+        Request $request
+    ): JsonResponse
+    {
+        return new JsonResponse([
+            'content' => $this->render('app_structure/_structure_partial.html.twig', [
+                'mainMenu' => $application->getMainMenu(),
+                'unassignedPagesMenu' => $application->getUnassignedPagesMenu(),
+                'application' => $application,
+            ])->getContent(),
+        ]);
+    }
+
+
     /**
      * Updates the order of a menu item within a menu.
      *
