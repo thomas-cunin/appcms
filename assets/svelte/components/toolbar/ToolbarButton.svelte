@@ -5,13 +5,13 @@
     export let icon;
 </script>
 
-<button type="button" class:active={active} on:click={onClick}>
+<button class="tool" type="button" class:active={active} on:click={onClick}>
     {#if icon}
         <i class={icon}></i>
     {/if}
-    {#if label}
-        {label}
-    {/if}
+    <!--{#if label}-->
+    <!--    {label}-->
+    <!--{/if}-->
 </button>
 
 <style>

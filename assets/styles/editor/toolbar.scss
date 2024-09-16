@@ -1,18 +1,24 @@
 .toolbar {
-  background-color: #c1c1c1;
+  background-color: #FFFFFF;
   display: flex;
-  gap: 5px;
+  padding: 8px;
+  gap: 8px;
   margin-bottom: 10px;
-  button{
-    padding: 5px 10px;
+  border-radius: 0.5rem;
+  button.tool{
+    padding-left: .5rem;
+    padding-right: .5rem;
     cursor: pointer;
-    border: 1px solid #ccc;
-    background: white;
+    font-weight: 600;
+    font-size: .875rem;
+    line-height: 1.25rem;
+    border-radius: .25rem;
+
     &:hover{
-      background: #f0f0f0;
+      background: #c6c6c6;
     }
     &.active{
-      background: red;
+      background: #888888;
     }
 
   }

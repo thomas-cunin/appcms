@@ -193,12 +193,12 @@
 
 <div>
     <div class="toolbar">
-        <ToolbarButton active={$isBold} onClick={toggleBold} label="B" />
-        <ToolbarButton active={$isItalic} onClick={toggleItalic} label="I" />
-        <ToolbarButton active={$isStrike} onClick={toggleStrike} label="S" />
+        <ToolbarButton active={$isBold} onClick={toggleBold} icon={'ri-bold'} label="B"  />
+        <ToolbarButton active={$isItalic} onClick={toggleItalic} icon={'ri-italic'} label="I" />
+        <ToolbarButton active={$isStrike} onClick={toggleStrike} icon={'ri-strikethrough'} label="S" />
         <div class="dropdown is-hoverable">
             <div class="dropdown-trigger">
-                <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
+                <button class="button is-white is-small" aria-haspopup="true" aria-controls="dropdown-menu">
                     <span>{$headingTexts[$currentStyle]}</span>
                     <span class="icon is-small">
                     <i class="ri-arrow-down-s-line"></i>
@@ -230,14 +230,13 @@
                 </div>
             </div>
         </div>
-        <ToolbarButton active={$isBulletList} onClick={insertBulletList} label="UL" />
-        <ToolbarButton active={$isOrderedList} onClick={insertOrderedList} label="OL" />
-        <ToolbarButton onClick={insertImage} label="IMG" />
-        <ToolbarButton onClick={insertHorizontalRule} label="HR" />
-        <ToolbarButton active={$isBlockquote} onClick={insertBlockquote} label="BLOCKQUOTE" />
-        <ToolbarButton active={$isTextAlignLeft} onClick={toggleTextAlignLeft} icon="ri-align-left" />
-        <ToolbarButton active={$isTextAlignCenter} onClick={toggleTextAlignCenter} icon="ri-align-center" />
-        <ToolbarButton active={$isTextAlignRight} onClick={toggleTextAlignRight} icon="ri-align-right" />
+        <ToolbarButton active={$isBulletList} onClick={insertBulletList} icon={'ri-list-unordered'} label="UL" />
+        <ToolbarButton active={$isOrderedList} onClick={insertOrderedList} icon={'ri-list-ordered'} label="OL" />
+        <ToolbarButton onClick={insertImage} icon={'ri-image-add-line'} label="IMG" />
+        <ToolbarButton active={$isBlockquote} onClick={insertBlockquote} icon={'ri-quote-text'} label="BLOCKQUOTE" />
+        <ToolbarButton active={$isTextAlignLeft} onClick={toggleTextAlignLeft} icon={"ri-align-left"} />
+        <ToolbarButton active={$isTextAlignCenter} onClick={toggleTextAlignCenter} icon={"ri-align-center"} />
+        <ToolbarButton active={$isTextAlignRight} onClick={toggleTextAlignRight} icon={"ri-align-right"} />
         <input type="color" value={$currentColor} on:change={setColor}/>
     </div>
     <div bind:this={editorContainer} class="editor"></div>
