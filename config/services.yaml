@@ -30,5 +30,8 @@ services:
         arguments:
             $pageTypeService: '@App\Service\PageTypeService'
         tags: [ 'twig.runtime' ]
+    App\Service\MediaFileService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

@@ -12,6 +12,8 @@
     // import {TaskList} from '@tiptap/extension-task-list';
     // import {TaskItem} from '@tiptap/extension-task-item';
     import {writable} from 'svelte/store';
+    import Coloris from "@melloware/coloris";
+
 
     let editor;
     let editorContainer;
@@ -51,7 +53,7 @@
                 Color,
                 TextAlign.configure({
                     types: ['heading', 'paragraph'],
-                }),,
+                }), ,
                 FontFamily,
             ],
             content: '',
@@ -59,12 +61,35 @@
             onTransaction: updateButtonStates,
         });
 
+
+        Coloris.init();
+        Coloris({
+            el: '.coloris',
+            swatches: [
+                '#264653',
+                '#2a9d8f',
+                '#e9c46a',
+                '#f4a261',
+                '#e76f51',
+                '#d62828',
+                '#023e8a',
+                '#0077b6',
+                '#0096c7',
+                '#00b4d8',
+                '#48cae4'
+            ]
+        });
+        Coloris.setInstance('#color-picker-input', {
+            theme: 'polaroid',
+            swatchesOnly: true
+        });
         editor.commands.setContent(document.querySelector('#content_page_editor_content').value);
     });
 
     function updateTextArea() {
         // document.querySelector('#content_page_editor_content').value = editor.getHTML();
     }
+
     function updateButtonStates() {
         updateTextArea();
         isBold.set(editor.isActive('bold'));
@@ -88,11 +113,11 @@
         localColor = attrs.color || '#000000';
         currentFontFamily.set(attrs.fontFamily);
 
-        if (editor.isActive('heading', { level: 1 })) {
+        if (editor.isActive('heading', {level: 1})) {
             currentStyle.set('H1');
-        } else if (editor.isActive('heading', { level: 2 })) {
+        } else if (editor.isActive('heading', {level: 2})) {
             currentStyle.set('H2');
-        } else if (editor.isActive('heading', { level: 3 })) {
+        } else if (editor.isActive('heading', {level: 3})) {
             currentStyle.set('H3');
         } else {
             currentStyle.set('P');
@@ -193,9 +218,9 @@
 
 <div>
     <div class="toolbar">
-        <ToolbarButton active={$isBold} onClick={toggleBold} icon={'ri-bold'} label="B"  />
-        <ToolbarButton active={$isItalic} onClick={toggleItalic} icon={'ri-italic'} label="I" />
-        <ToolbarButton active={$isStrike} onClick={toggleStrike} icon={'ri-strikethrough'} label="S" />
+        <ToolbarButton active={$isBold} onClick={toggleBold} icon={'ri-bold'} label="B"/>
+        <ToolbarButton active={$isItalic} onClick={toggleItalic} icon={'ri-italic'} label="I"/>
+        <ToolbarButton active={$isStrike} onClick={toggleStrike} icon={'ri-strikethrough'} label="S"/>
         <div class="dropdown is-hoverable">
             <div class="dropdown-trigger">
                 <button class="button is-white is-small" aria-haspopup="true" aria-controls="dropdown-menu">
@@ -230,14 +255,14 @@
                 </div>
             </div>
         </div>
-        <ToolbarButton active={$isBulletList} onClick={insertBulletList} icon={'ri-list-unordered'} label="UL" />
-        <ToolbarButton active={$isOrderedList} onClick={insertOrderedList} icon={'ri-list-ordered'} label="OL" />
-        <ToolbarButton onClick={insertImage} icon={'ri-image-add-line'} label="IMG" />
-        <ToolbarButton active={$isBlockquote} onClick={insertBlockquote} icon={'ri-quote-text'} label="BLOCKQUOTE" />
-        <ToolbarButton active={$isTextAlignLeft} onClick={toggleTextAlignLeft} icon={"ri-align-left"} />
-        <ToolbarButton active={$isTextAlignCenter} onClick={toggleTextAlignCenter} icon={"ri-align-center"} />
-        <ToolbarButton active={$isTextAlignRight} onClick={toggleTextAlignRight} icon={"ri-align-right"} />
-        <input type="color" value={$currentColor} on:change={setColor}/>
+        <ToolbarButton active={$isBulletList} onClick={insertBulletList} icon={'ri-list-unordered'} label="UL"/>
+        <ToolbarButton active={$isOrderedList} onClick={insertOrderedList} icon={'ri-list-ordered'} label="OL"/>
+        <ToolbarButton onClick={insertImage} icon={'ri-image-add-line'} label="IMG"/>
+        <ToolbarButton active={$isBlockquote} onClick={insertBlockquote} icon={'ri-quote-text'} label="BLOCKQUOTE"/>
+        <ToolbarButton active={$isTextAlignLeft} onClick={toggleTextAlignLeft} icon={"ri-align-left"}/>
+        <ToolbarButton active={$isTextAlignCenter} onClick={toggleTextAlignCenter} icon={"ri-align-center"}/>
+        <ToolbarButton active={$isTextAlignRight} onClick={toggleTextAlignRight} icon={"ri-align-right"}/>
+        <input type="text" class="coloris" id="color-picker-input" value={$currentColor} on:change={setColor}/>
     </div>
     <div bind:this={editorContainer} class="editor"></div>
 </div>

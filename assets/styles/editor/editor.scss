@@ -1,6 +1,7 @@
 @use "core.scss";
 @use "toolbar.scss";
 @use "themes/basic.scss";
+@use "coloris/coloris.scss";
 
 .editor-container{
   caret-color: #000;
