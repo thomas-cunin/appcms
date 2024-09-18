@@ -31,6 +31,9 @@ class Application
     #[ORM\OneToMany(targetEntity: Menu::class, mappedBy: 'application', fetch: 'EAGER', orphanRemoval: true)]
     private Collection $menus;
 
+    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    private ?StorageConfig $storageConfig = null;
+
     public function __construct()
     {
         $this->uuid = str_replace('-', '', Uuid::v4()->toRfc4122());
@@ -123,6 +126,18 @@ public function getUnassignedPagesMenu(): ?Menu
                 $menu->setApplication(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getStorageConfig(): ?StorageConfig
+    {
+        return $this->storageConfig;
+    }
+
+    public function setStorageConfig(?StorageConfig $storageConfig): static
+    {
+        $this->storageConfig = $storageConfig;
 
         return $this;
     }
