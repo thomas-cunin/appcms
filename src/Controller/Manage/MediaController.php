@@ -24,9 +24,9 @@ class MediaController extends AbstractController
 
                 // Sauvegardez l'entité Media dans la base de données si nécessaire
 
-                $entityManager->persist($media);
-                $entityManager->flush();
-                return new Response('File uploaded successfully with ID ' . $media->getId());
+//                $entityManager->persist($media);
+//                $entityManager->flush();
+                return new Response('File uploaded successfully with ID ');
             }
 
             return new Response('No file uploaded', 400);

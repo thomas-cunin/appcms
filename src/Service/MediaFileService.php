@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Media;
+use Aws\S3\S3Client;
 use Intervention\Image\Drivers\Gd\Driver;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -20,47 +21,46 @@ class MediaFileService
         $this->imageManager = new ImageManager(new Driver());
     }
 
-    public function uploadFile(UploadedFile $file, string $mediaType): Media
+    public function uploadFile(UploadedFile $file, string $mediaType): string
     {
-        $filesystem = new Filesystem();
 
-        // Validate media type
-        $validTypes = [Media::TYPE_IMAGE, Media::TYPE_VIDEO, Media::TYPE_AUDIO, Media::TYPE_DOCUMENT];
-        if (!in_array($mediaType, $validTypes)) {
-            throw new \InvalidArgumentException('Invalid media type.');
-        }
+        // Configurer le client S3 avec les Access Key ID et Secret Access Key
+        $s3Client = new S3Client([
+            'version'     => 'latest',
+            'region'      => 'eu-west-3',
+            'credentials' => [
+                'key'    => 'AKIAXG4IRAVFB24S4W4B', // Remplacez par votre Access Key ID
+                'secret' => '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', // Remplacez par votre Secret Access Key
+            ],
+        ]);
 
-        // Create directories if they don't exist
-        $destination = $this->uploadDir . '/' . $mediaType;
-        if (!$filesystem->exists($destination)) {
-            $filesystem->mkdir($destination, 0777);
-        }
-
-        // Generate a unique filename, truncate if original name is too long
+        // Générer un nom de fichier unique
         $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
         if (strlen($originalFilename) > 100) {
             $originalFilename = substr($originalFilename, 0, 100);
         }
         $newFilename = $originalFilename . '-' . uniqid() . '.' . $file->guessExtension();
 
+        // Upload du fichier vers S3
+        $bucket = 'liliathum';
+        $s3Key = $mediaType . '/' . $newFilename;
 
-
-        // Create a new Media entity
-        $media = new Media();
-        $media->setOriginalFileName($file->getClientOriginalName())
-            ->setType($mediaType)
-            ->setOrigin($destination)
-            ->setExtension($file->guessExtension())
-            ->setFileName($newFilename)
-            ->setUploadedAt(new \DateTimeImmutable());
-// Move the file to the target directory
-        $file->move($destination, $newFilename);
-        // Generate thumbnails if the media type is an image
-        if ($mediaType === Media::TYPE_IMAGE) {
-            $this->generateThumbnails($destination, $newFilename);
+        try {
+            $result = $s3Client->putObject([
+                'Bucket' => $bucket,
+                'Key'    => $s3Key,
+                'SourceFile' => $file->getPathname(),
+                'Metadata'   => [
+                    'Original-Filename' => $file->getClientOriginalName(),
+                    'Media-Type' => $mediaType,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            throw new \RuntimeException('Failed to upload file to S3: ' . $e->getMessage());
         }
-
-        return $media;
+dump($result);
+        // Retourner l'URL de l'objet S3
+        return $result['ObjectURL'];
     }
 
     public function getMedia(string $mediaType, string $filename): string
