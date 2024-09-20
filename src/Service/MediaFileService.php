@@ -24,16 +24,6 @@ class MediaFileService
     public function uploadFile(UploadedFile $file, string $mediaType): string
     {
 
-        // Configurer le client S3 avec les Access Key ID et Secret Access Key
-        $s3Client = new S3Client([
-            'version'     => 'latest',
-            'region'      => 'eu-west-3',
-            'credentials' => [
-                'key'    => 'AKIAXG4IRAVFB24S4W4B', // Remplacez par votre Access Key ID
-                'secret' => '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', // Remplacez par votre Secret Access Key
-            ],
-        ]);
-
         // Générer un nom de fichier unique
         $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
         if (strlen($originalFilename) > 100) {
