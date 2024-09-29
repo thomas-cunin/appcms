@@ -20,7 +20,7 @@
                     {% endif %}
                 </div>
                 <div class="card-content">
-                    <p class="media-name has-text-weight-bold">{{ media.originalFileName }}</p>
+                    <p class="media-name has-text-weight-bold" title="{{ media.originalFileName }}">{{ media.originalFileName }}</p>
                     <div class="sub-content">
                         <p class="media-info has-text-grey">
                             Ajouté le {{ media.uploadedAt|date('d/m/Y') }}

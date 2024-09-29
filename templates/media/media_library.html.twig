@@ -75,7 +75,6 @@
     </script>
     <script>
 
-        // Mise à jour du nom du fichier sélectionné
 
 
         // Fonction pour charger la liste des médias
@@ -102,14 +101,6 @@
 
         // Charger la liste des médias au chargement de la page
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('file-input').addEventListener('change', function(){
-                const fileName = document.getElementById('file-name');
-                if (this.files.length > 0) {
-                    fileName.textContent = this.files[0].name;
-                } else {
-                    fileName.textContent = 'Aucun fichier sélectionné';
-                }
-            });
             document.getElementById('filter-form').addEventListener('submit', function(e) {
                 e.preventDefault();
                 loadMediaList();
