@@ -1,7 +1,10 @@
 @use "../../node_modules/bulma/sass/index";
 @use "../../node_modules/remixicon/fonts/remixicon.css";
+//@import 'lib/bulma-extension/bulma-checkradio.scss';
 @use "app_structure/menu_structure.scss";
 @use "editor/editor.scss";
+@use "media_library/media-library.scss";
+
 body{
   background-color: #efefef;
 }

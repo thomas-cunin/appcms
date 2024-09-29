@@ -2,60 +2,78 @@
 
 namespace App\Service;
 
+use App\Entity\Application;
 use App\Entity\Media;
-use Aws\S3\S3Client;
 use Intervention\Image\Drivers\Gd\Driver;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Intervention\Image\ImageManager;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\RouterInterface;
 
 class MediaFileService
 {
     private string $uploadDir;
     private ImageManager $imageManager;
 
-    public function __construct(string $projectDir)
+    public function __construct(string $projectDir,private RouterInterface $router)
     {
         $this->uploadDir = $projectDir . '/uploads';
         $this->imageManager = new ImageManager(new Driver());
     }
 
-    public function uploadFile(UploadedFile $file, string $mediaType): string
+    public function uploadFile(Application $application,UploadedFile $file, string $mediaType): Media
     {
+        $filesystem = new Filesystem();
 
-        // Générer un nom de fichier unique
+        // Validate media type
+        $validTypes = [Media::TYPE_IMAGE, Media::TYPE_VIDEO, Media::TYPE_AUDIO, Media::TYPE_DOCUMENT];
+        if (!in_array($mediaType, $validTypes)) {
+            throw new \InvalidArgumentException('Invalid media type.');
+        }
+
+        // Create directories if they don't exist
+        $destination = $this->uploadDir . '/' . $application->getUuid() . '/' . $mediaType;
+        if (!$filesystem->exists($destination)) {
+            $filesystem->mkdir($destination, 0777);
+        }
+
+        // Generate a unique filename, truncate if original name is too long
         $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
         if (strlen($originalFilename) > 100) {
             $originalFilename = substr($originalFilename, 0, 100);
         }
         $newFilename = $originalFilename . '-' . uniqid() . '.' . $file->guessExtension();
 
-        // Upload du fichier vers S3
-        $bucket = 'liliathum';
-        $s3Key = $mediaType . '/' . $newFilename;
+// Generate the URL for the media
+        $mediaUrl = $this->router->generate('app_asset', [
+            'appUuid' => $application->getUuid(),
+            'assetType' => $mediaType,
+            'fileName' => $newFilename
+        ], UrlGeneratorInterface::RELATIVE_PATH);
 
-        try {
-            $result = $s3Client->putObject([
-                'Bucket' => $bucket,
-                'Key'    => $s3Key,
-                'SourceFile' => $file->getPathname(),
-                'Metadata'   => [
-                    'Original-Filename' => $file->getClientOriginalName(),
-                    'Media-Type' => $mediaType,
-                ],
-            ]);
-        } catch (\Exception $e) {
-            throw new \RuntimeException('Failed to upload file to S3: ' . $e->getMessage());
+        // Create a new Media entity
+        $media = new Media();
+        $media->setOriginalFileName($file->getClientOriginalName())
+            ->setType($mediaType)
+            ->setOrigin($mediaUrl)
+            ->setExtension($file->guessExtension())
+            ->setFileName($newFilename)
+            ->setUploadedAt(new \DateTimeImmutable());
+// Move the file to the target directory
+        $file->move($destination, $newFilename);
+        // Generate thumbnails if the media type is an image
+        if ($mediaType === Media::TYPE_IMAGE) {
+            $this->generateThumbnails($destination, $newFilename);
         }
-dump($result);
-        // Retourner l'URL de l'objet S3
-        return $result['ObjectURL'];
+
+        return $media;
     }
 
-    public function getMedia(string $mediaType, string $filename): string
+    public function getMedia(Application $application, string $mediaType, string $filename): string
     {
-        $filePath = $this->uploadDir . '/' . $mediaType . '/' . $filename;
+        $filePath = $this->uploadDir . '/' . $application->getUuid() . '/' . $mediaType . '/' . $filename;
 
         if (!file_exists($filePath)) {
             throw new NotFoundHttpException('Media not found.');
@@ -64,10 +82,21 @@ dump($result);
         return $filePath;
     }
 
-    public function getThumbnail(string $mediaType, string $filename, string $size): string
+    public function getMediaOptimized(string $appUuid, string $assetType, string $fileName): string
+    {
+        $filePath = $this->uploadDir . '/' . $appUuid . '/' . $assetType . '/' . $fileName;
+
+        if (!file_exists($filePath)) {
+            throw new NotFoundHttpException('Media not found.');
+        }
+
+        return $filePath;
+    }
+
+    public function getThumbnail(Application $application, string $mediaType, string $filename, string $size): string
     {
         $thumbnailFilename = pathinfo($filename, PATHINFO_FILENAME) . '-' . $size . '.' . pathinfo($filename, PATHINFO_EXTENSION);
-        $thumbnailPath = $this->uploadDir . '/' . $mediaType . '/thumbnails/' . $thumbnailFilename;
+        $thumbnailPath = $this->uploadDir . '/' . $application->getUuid() . '/' . $mediaType . '/thumbnails/' . $thumbnailFilename;
 
         if (!file_exists($thumbnailPath)) {
             throw new NotFoundHttpException('Thumbnail not found.');
@@ -76,19 +105,31 @@ dump($result);
         return $thumbnailPath;
     }
 
-    public function deleteMedia(string $mediaType, string $filename): void
+    public function getMediaOptimizedThumbnail(string $appUuid, string $assetType, string $fileName): string
+    {
+        $thumbnailFilename = pathinfo($fileName, PATHINFO_FILENAME) . '-medium.' . pathinfo($fileName, PATHINFO_EXTENSION);
+        $thumbnailPath = $this->uploadDir . '/' . $appUuid . '/' . $assetType . '/thumbnails/' . $thumbnailFilename;
+
+        if (!file_exists($thumbnailPath)) {
+            throw new NotFoundHttpException('Thumbnail not found.');
+        }
+
+        return $thumbnailPath;
+    }
+
+    public function deleteMedia(Application $application, string $mediaType, string $filename): void
     {
         $filesystem = new Filesystem();
-        $filePath = $this->getMedia($mediaType, $filename);
+        $filePath = $this->getMedia($application, $mediaType, $filename);
 
-        // Delete the main file
+        // Suppression du fichier principal
         $filesystem->remove($filePath);
 
-        // Delete the thumbnails if they exist
+        // Suppression des thumbnails si existants
         if ($mediaType === Media::TYPE_IMAGE) {
-            $sizes = ['small', 'medium', 'large'];
+            $sizes = ['medium'];
             foreach ($sizes as $size) {
-                $thumbnailPath = $this->uploadDir . '/' . $mediaType . '/thumbnails/' . pathinfo($filename, PATHINFO_FILENAME) . '-' . $size . '.' . pathinfo($filename, PATHINFO_EXTENSION);
+                $thumbnailPath = $this->uploadDir . '/' . $application->getUuid() . '/' . $mediaType . '/thumbnails/' . pathinfo($filename, PATHINFO_FILENAME) . '-' . $size . '.' . pathinfo($filename, PATHINFO_EXTENSION);
                 if ($filesystem->exists($thumbnailPath)) {
                     $filesystem->remove($thumbnailPath);
                 }
@@ -106,9 +147,7 @@ dump($result);
         }
 
         $sizes = [
-            'small' => 150,
             'medium' => 300,
-            'large' => 600
         ];
 
         foreach ($sizes as $sizeName => $width) {
