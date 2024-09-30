@@ -1,0 +1,135 @@
+{# templates/media/media_library.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Médiathèque{% endblock %}
+
+{% block body %}
+        <div class="container">
+            <h1 class="title">Médiathèque</h1>
+            <div class="field">
+                {# Zone d'upload avec Dropzone #}
+                <form action="{{ path('media_library_upload') }}"
+                      class="dropzone"
+                      id="my-dropzone"
+                      enctype="multipart/form-data"
+                >
+                </form>
+            </div>
+
+            {# Filtres et recherche #}
+            <div class="box">
+                <form id="filter-form">
+                    <div class="field is-grouped">
+                        <div class="control">
+                            <div class="select">
+                                <select name="type" id="media-type">
+                                    <option value="">Tous les types</option>
+                                    <option value="{{ constant('App\\Entity\\Media::TYPE_IMAGE') }}">Images</option>
+                                    <option value="{{ constant('App\\Entity\\Media::TYPE_VIDEO') }}">Vidéos</option>
+                                    <option value="{{ constant('App\\Entity\\Media::TYPE_AUDIO') }}">Audios</option>
+                                    <option value="{{ constant('App\\Entity\\Media::TYPE_DOCUMENT') }}">Documents</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="control">
+                            <input class="input" type="text" name="search" id="search-term" placeholder="Rechercher...">
+                        </div>
+                        <div class="control">
+                            <button type="submit" class="button is-info">Filtrer</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            {# Conteneur pour la liste des médias #}
+            <div id="media-list">
+                {# La liste des médias sera chargée ici via AJAX #}
+            </div>
+        </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.js"></script>
+    <script>
+        Dropzone.options.myDropzone = {
+            paramName: 'file', // Le nom du paramètre qui sera utilisé sur le serveur
+            maxFilesize: 5, // Taille maximale en Mo
+            maxFiles: 10, // Nombre maximum de fichiers
+            uploadMultiple: true,
+            parallelUploads: 10,
+            acceptedFiles: 'image/*,video/*,audio/*,.pdf,.doc,.docx', // Types de fichiers acceptés
+            dictDefaultMessage: 'Déposez vos fichiers ici ou cliquez pour télécharger',
+            acceptedFiles: 'image/*',
+            init: function() {
+                this.on("successmultiple", function(files, response) {
+                    // Rafraîchir la liste des médias si nécessaire
+                    loadMediaList();
+                });
+                this.on("errormultiple", function(files, response) {
+                    console.error('Erreur lors de l\'upload:', response);
+                });
+            }
+        };
+    </script>
+    <script>
+
+
+
+        // Fonction pour charger la liste des médias
+        function loadMediaList(page = 1) {
+            const type = document.getElementById('media-type').value;
+            const search = document.getElementById('search-term').value;
+
+            fetch(`{{ path('media_library_list') }}?page=${page}&type=${type}&search=${search}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('media-list').innerHTML = html;
+
+                    // Mettre à jour les liens de pagination
+                    bindPaginationLinks();
+                })
+                .catch(error => {
+                    console.error('Erreur lors du chargement des médias:', error);
+                });
+        }
+
+        // Charger la liste des médias au chargement de la page
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('filter-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                loadMediaList();
+            });
+            loadMediaList();
+        });
+
+        // Gestion de la soumission du formulaire de filtres
+
+        function bindPaginationLinks() {
+            const paginationLinks = document.querySelectorAll('.pagination a');
+
+            paginationLinks.forEach(link => {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const url = this.getAttribute('href');
+                    fetch(url, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                        .then(response => response.text())
+                        .then(data => {
+                            document.getElementById('media-list').innerHTML = data;
+                            bindPaginationLinks();
+                        })
+                        .catch(error => console.error('Erreur:', error));
+                });
+            });
+        }
+    </script>
+{% endblock %}

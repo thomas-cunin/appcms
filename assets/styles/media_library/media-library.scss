@@ -1,0 +1,50 @@
+.media-card{
+  padding:8px;
+  border-radius: 8px;
+  border: 1px solid #b6b6b6;
+  gap: 8px;
+  display: flex;
+  flex-direction: column;
+}
+.media-card .card-image{
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+
+}
+.media-card .card-image img{
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background-color: #f5f5f5;
+}
+.media-card .card-content p:not(:last-child){
+  margin-bottom: 8px;
+}
+.media-card .card-content p.media-name{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.media-card .media-checkbox{
+  position: absolute;
+  top: 4px;
+  left: 8px;
+  z-index: 1;
+  padding: 4px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.media-card.is-selected {
+  border: 2px solid #3273dc;
+
+}
+
+.media-collection {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: #4a4a4a;
+}
