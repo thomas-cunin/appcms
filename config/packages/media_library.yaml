@@ -1,0 +1,24 @@
+##Ancienne configuration
+parameters:
+  media_library:
+    media_types:
+      image:
+        constant: 'image'
+        constraints:
+          - { name: 'max', options: '5M' }
+          - { name: 'mimeTypes', options: ['image/jpeg', 'image/png', 'image/gif'] }
+      audio:
+          constant: 'audio'
+          constraints:
+              - { name: 'max', options: '10M' }
+              - { name: 'mimeTypes', options: ['audio/mpeg', 'audio/wav', 'audio/aac'] }
+      video:
+          constant: 'video'
+          constraints:
+              - { name: 'max', options: '100M' }
+              - { name: 'mimeTypes', options: ['video/mp4', 'video/avi', 'video/quicktime', 'video/x-ms-wmv'] }
+      document:
+          constant: 'document'
+          constraints:
+              - { name: 'max', options: '2M' }
+              - { name: 'mimeTypes', options: ['application/pdf'] }

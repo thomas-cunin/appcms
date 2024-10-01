@@ -6,7 +6,7 @@
             <div class="media-card">
                 <div class="card-image">
                     <label class="media-checkbox">
-                        <input type="checkbox" class="checkbox">
+                        <input type="checkbox" class="checkbox media-selection-checkbox" data-uuid="{{ media.uuid }}">
                         <div class="overlay-checkbox"></div>
                     </label>
                     {% if media.type == constant('App\\Entity\\Media::TYPE_IMAGE') %}
@@ -14,9 +14,19 @@
                             <img src="{{ media.origin ~ '/thumbnail' }}" alt="{{ media.altAttribute }}">
                         </figure>
                     {% else %}
-                        <figure class="image is-4by3">
-                            <img src="/images/default-media.png" alt="Media">
-                        </figure>
+                        <div class="extra-media image is-4by3">
+                            <div class="media-icon">
+                                {% if media.type == constant('App\\Entity\\Media::TYPE_VIDEO') %}
+                                    <i class="ri-movie-line"></i>
+                                {% elseif media.type == constant('App\\Entity\\Media::TYPE_AUDIO') %}
+                                    <i class="ri-voiceprint-line"></i>
+                                {% elseif media.type == constant('App\\Entity\\Media::TYPE_DOCUMENT') %}
+                                    <i class="ri-file-text-line"></i>
+                                {% else %}
+                                    <i class="ri-question-mark"></i>
+                                {% endif %}
+                            </div>
+                        </div>
                     {% endif %}
                 </div>
                 <div class="card-content">
