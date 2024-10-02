@@ -48,3 +48,13 @@
   font-size: 0.85rem;
   color: #4a4a4a;
 }
+
+.media-card .card-image .extra-media {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.media-card .card-image .extra-media .media-icon {
+  font-size: 48px;
+}

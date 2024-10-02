@@ -17,6 +17,12 @@
                 </form>
             </div>
 
+            {# Barre d'actions groupées #}
+            <div id="bulk-action-bar" class="notification is-info" style="display: none;">
+                <span id="selected-count">0</span> média(s) sélectionné(s).
+                <button id="delete-selected" class="button is-danger is-small">Supprimer</button>
+                {# Vous pouvez ajouter d'autres actions ici #}
+            </div>
             {# Filtres et recherche #}
             <div class="box">
                 <form id="filter-form">
@@ -54,28 +60,78 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.js"></script>
     <script>
         Dropzone.options.myDropzone = {
-            paramName: 'file', // Le nom du paramètre qui sera utilisé sur le serveur
-            maxFilesize: 5, // Taille maximale en Mo
-            maxFiles: 10, // Nombre maximum de fichiers
+            paramName: 'file',
+            maxFilesize: 100, // Vous pouvez ajuster cette valeur si nécessaire
+            maxFiles: 10,
             uploadMultiple: true,
             parallelUploads: 10,
-            acceptedFiles: 'image/*,video/*,audio/*,.pdf,.doc,.docx', // Types de fichiers acceptés
+            acceptedFiles: 'image/*,video/*,audio/*,.pdf',
             dictDefaultMessage: 'Déposez vos fichiers ici ou cliquez pour télécharger',
-            acceptedFiles: 'image/*',
             init: function() {
                 this.on("successmultiple", function(files, response) {
+                    for (let i = 0; i < files.length; i++) {
+                        const file = files[i];
+                        const fileResponse = response.find(res => res.name === file.name);
+
+                        if (fileResponse && fileResponse.status === 'success') {
+                            // Marquer le fichier comme uploadé avec succès
+                            file.status = Dropzone.SUCCESS;
+                            this.emit("complete", file);
+                        } else if (fileResponse && fileResponse.status === 'error') {
+                            // Marquer le fichier comme erreur
+                            file.status = Dropzone.ERROR;
+                            this.emit("error", file, fileResponse.message);
+                            this.emit("complete", file);
+                        } else {
+                            // Cas où le fichier n'est pas trouvé dans la réponse
+                            file.status = Dropzone.ERROR;
+                            this.emit("error", file, 'Erreur inconnue lors de l\'upload.');
+                            this.emit("complete", file);
+                        }
+                    }
                     // Rafraîchir la liste des médias si nécessaire
                     loadMediaList();
                 });
+
                 this.on("errormultiple", function(files, response) {
                     console.error('Erreur lors de l\'upload:', response);
+                    for (let i = 0; i < files.length; i++) {
+                        const file = files[i];
+                        file.status = Dropzone.ERROR;
+                        this.emit("error", file, response.message || 'Erreur inconnue');
+                        this.emit("complete", file);
+                    }
                 });
             }
         };
+
     </script>
     <script>
 
+        // Fonction pour mettre à jour la barre d'actions groupées
+        function updateBulkActionBar() {
+            const selectedCheckboxes = document.querySelectorAll('.media-selection-checkbox:checked');
+            const bulkActionBar = document.getElementById('bulk-action-bar');
+            const selectedCount = document.getElementById('selected-count');
 
+            if (selectedCheckboxes.length > 0) {
+                bulkActionBar.style.display = 'block';
+                selectedCount.textContent = selectedCheckboxes.length;
+            } else {
+                bulkActionBar.style.display = 'none';
+                selectedCount.textContent = '0';
+            }
+        }
+
+        // Fonction pour gérer les événements des cases à cocher
+        function bindMediaCheckboxEvents() {
+            const checkboxes = document.querySelectorAll('.media-selection-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    updateBulkActionBar();
+                });
+            });
+        }
 
         // Fonction pour charger la liste des médias
         function loadMediaList(page = 1) {
@@ -93,6 +149,12 @@
 
                     // Mettre à jour les liens de pagination
                     bindPaginationLinks();
+
+                    // Attacher les événements aux nouvelles cases à cocher
+                    bindMediaCheckboxEvents();
+
+                    // Mettre à jour la barre d'actions groupées
+                    updateBulkActionBar();
                 })
                 .catch(error => {
                     console.error('Erreur lors du chargement des médias:', error);
@@ -106,6 +168,11 @@
                 loadMediaList();
             });
             loadMediaList();
+
+            // Attacher l'événement de suppression des médias sélectionnés
+            document.getElementById('delete-selected').addEventListener('click', function() {
+                deleteSelectedMedia();
+            });
         });
 
         // Gestion de la soumission du formulaire de filtres
@@ -130,6 +197,43 @@
                         .catch(error => console.error('Erreur:', error));
                 });
             });
+        }
+
+        // Fonction pour supprimer les médias sélectionnés
+        function deleteSelectedMedia() {
+            const selectedCheckboxes = document.querySelectorAll('.media-selection-checkbox:checked');
+            const uuids = Array.from(selectedCheckboxes).map(checkbox => checkbox.getAttribute('data-uuid'));
+
+            if (uuids.length === 0) {
+                return;
+            }
+
+            if (!confirm('Êtes-vous sûr de vouloir supprimer les médias sélectionnés ?')) {
+                return;
+            }
+
+            fetch(`{{ path('media_library_delete') }}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ uuids: uuids })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Recharger la liste des médias
+                        loadMediaList();
+                        // Réinitialiser la barre d'actions groupées
+                        updateBulkActionBar();
+                    } else {
+                        alert('Erreur lors de la suppression des médias.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur lors de la suppression des médias:', error);
+                });
         }
     </script>
 {% endblock %}
