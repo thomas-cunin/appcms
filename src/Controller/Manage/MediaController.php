@@ -72,6 +72,7 @@ class MediaController extends AbstractController
         if ($request->isXmlHttpRequest()) {
             return $this->render('media/_media_list.html.twig', [
                 'pagination' => $pagination,
+                'readOnly' => false
             ]);
         }
 
@@ -79,6 +80,33 @@ class MediaController extends AbstractController
         return new Response('Cette page n\'est accessible que via AJAX.', 400);
     }
 
+    //Route pour afficher tous les médias d'un type donné et avec aucune limite de pagination
+    #[Route('/media-library/list-all', name: 'media_library_list_all')]
+    public function mediaLibraryListAll(
+        Application $application,
+        Request $request,
+        MediaRepository $mediaRepository
+    ): Response {
+        $mediaType = $request->query->get('type', null);
+
+        // Construire la requête de base
+        $queryBuilder = $mediaRepository->createQueryBuilder('m');
+
+        // Ajouter des filtres en fonction des paramètres
+        if ($mediaType) {
+            $queryBuilder->andWhere('m.type = :type')
+                ->setParameter('type', $mediaType);
+        }
+
+        $medias = $queryBuilder->getQuery()->getResult();
+
+        return $this->render('media/_media_list.html.twig', [
+            'medias' => $medias,
+            'readOnly' => false,
+            'openInModal' => true,
+            'appUuid' => $application->getUuid()
+        ]);
+    }
     #[Route('/media-library/upload', name: 'media_library_upload', methods: ['POST'])]
     public function uploadMedia(
         Application $application,

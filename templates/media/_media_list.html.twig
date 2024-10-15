@@ -1,17 +1,38 @@
 {# templates/media/_media_list.html.twig #}
 
 <div class="columns is-multiline">
-    {% for media in pagination.items %}
+    {# if pagination is defined medias is pagination.items, if not medias is the given medias  #}
+    {% set medias = pagination is defined ? pagination.items : medias %}
+    {% for media in medias %}
         <div class="column is-one-fifth">
-            <div class="media-card">
+            <div class="media-card"
+                    {% if openInModal is defined and openInModal is same as(true) %}
+                        data-media-url="{{ url('app_asset_thumbnail',{
+                                'appUuid': appUuid,
+                                'assetType': constant('App\\Entity\\Media::TYPE_IMAGE'),
+                                'fileName': media.fileName,
+                            }) }}"
+                    {% else %}
+                        data-media-url="{{ media.origin }}"
+                    {% endif %}>
                 <div class="card-image">
+                    {% if readOnly is defined and readOnly is same as(true) %}
                     <label class="media-checkbox">
                         <input type="checkbox" class="checkbox media-selection-checkbox" data-uuid="{{ media.uuid }}">
                         <div class="overlay-checkbox"></div>
                     </label>
+                    {% endif %}
                     {% if media.type == constant('App\\Entity\\Media::TYPE_IMAGE') %}
                         <figure class="image is-4by3">
+                            {% if openInModal is defined and openInModal is same as(true) %}
+                            <img src="{{ url('app_asset_thumbnail',{
+                                'appUuid': appUuid,
+                                'assetType': constant('App\\Entity\\Media::TYPE_IMAGE'),
+                                'fileName': media.fileName,
+                            }) }}" alt="{{ media.altAttribute }}">
+                            {% else %}
                             <img src="{{ media.origin ~ '/thumbnail' }}" alt="{{ media.altAttribute }}">
+                            {% endif %}
                         </figure>
                     {% else %}
                         <div class="extra-media image is-4by3">
@@ -31,10 +52,12 @@
                 </div>
                 <div class="card-content">
                     <p class="media-name has-text-weight-bold" title="{{ media.originalFileName }}">{{ media.originalFileName }}</p>
+                    {% if openInModal is not defined or openInModal is same as(false) %}
                     <div class="sub-content">
                         <p class="media-info has-text-grey">
                             Ajouté le {{ media.uploadedAt|date('d/m/Y') }}
                         </p>
+
                         <p class="media-info">
                             <span class="tag is-light is-bold">
                                 {% if media.type == constant('App\\Entity\\Media::TYPE_IMAGE') %}
@@ -51,6 +74,7 @@
                             </span>
                         </p>
                     </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -59,5 +83,7 @@
     {% endfor %}
 </div>
 
-{# Pagination #}
-{{ knp_pagination_render(pagination) }}
+{# Pagination if pagination is defined and readOnly is not deifned or false#}
+{% if pagination is defined %}
+    {{ knp_pagination_render(pagination) }}
+{% endif %}

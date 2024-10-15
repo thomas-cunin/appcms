@@ -53,6 +53,7 @@
         "react-dom": "^18.3.1",
         "remixicon": "^4.3.0",
         "sweetalert2": "^11.14.0",
-        "tippy.js": "^6.3.7"
+        "tippy.js": "^6.3.7",
+        "tiptap-resize-image": "^2.0.1"
     }
 }

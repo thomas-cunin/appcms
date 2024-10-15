@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    <h1>Users List</h1>
+
+    <div id="users">Loading...</div>
+
+    <a href="{{ path('app_user_add') }}">
+        <button class="button is-primary">Create User</button>
+    </a>
+    <!-- Insert this at the end of your body element, but before the closing tag -->
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        onReady( function() {
+            $(document).ready(function() {
+                $('#users').initDataTables({{ datatable_settings(datatable) }},{
+                    searching: true,
+                });
+            });
+        });
+    </script>
+{% endblock %}
