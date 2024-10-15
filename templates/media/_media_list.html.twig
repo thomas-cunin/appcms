@@ -4,17 +4,17 @@
     {# if pagination is defined medias is pagination.items, if not medias is the given medias  #}
     {% set medias = pagination is defined ? pagination.items : medias %}
     {% for media in medias %}
-        <div class="column is-one-fifth">
+        <div class="column {% if openInModal is defined and openInModal is same as(true) %} is-one-quarter {% else %} is-one-fifth {% endif %}">
             <div class="media-card"
                     {% if openInModal is defined and openInModal is same as(true) %}
-                        data-media-url="{{ url('app_asset_thumbnail',{
+                        data-media-url="{{ url('app_asset',{
                                 'appUuid': appUuid,
                                 'assetType': constant('App\\Entity\\Media::TYPE_IMAGE'),
                                 'fileName': media.fileName,
                             }) }}"
                     {% else %}
                         data-media-url="{{ media.origin }}"
-                    {% endif %}>
+                    {% endif %} {% if openInModal is defined and openInModal is same as(true) %} title="Inserer l'image" {% endif %}>
                 <div class="card-image">
                     {% if readOnly is defined and readOnly is same as(true) %}
                     <label class="media-checkbox">

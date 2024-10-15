@@ -212,15 +212,17 @@
         Swal.fire({
             title: 'Insert Image from Media Library',
             html: '<div class="w" id="media-library-content"></div>',
-            showCancelButton: true,
+            showCancelButton: false,
+            showConfirmButton: false,
+            showCloseButton: true,
             //with bulma class make a full width modal
             customClass: {
-                container: 'is-fullwidth'
+                popup: 'is-fullwidth media-library-popup'
             },
-            confirmButtonText: 'Insert',
             showLoaderOnConfirm: true,
             didOpen: () => {
                 console.log('Media Library URL', $mediaLibraryUrl);
+                Swal.showLoading();
                 fetch($mediaLibraryUrl)
                     .then(response => response.text())
                     .then(data => {
@@ -232,6 +234,8 @@
                                 Swal.close();
                             });
                         });
+                        Swal.hideLoading();
+
                     });
             }
         });
