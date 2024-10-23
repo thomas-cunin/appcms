@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-<div id="editor">
+<div id="editor" data-media-library-url="{{ url('media_library_list_all',{type: constant('App\\Entity\\Media::TYPE_IMAGE')}) }} ">
 
 </div>
 {% endblock %}

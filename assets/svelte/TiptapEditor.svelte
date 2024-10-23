@@ -13,8 +13,26 @@
     // import {TaskItem} from '@tiptap/extension-task-item';
     import {writable} from 'svelte/store';
     import Coloris from "@melloware/coloris";
+    import Swal from 'sweetalert2';
 
-
+    const CustomImage = Image.extend({
+        addAttributes() {
+            return {
+                ...this.parent?.(),
+                width: {
+                    default: null,
+                    parseHTML: element => element.style.width || element.getAttribute('width') || null,
+                    renderHTML: attributes => {
+                        const { width, ...attrs } = attributes;
+                        if (width) {
+                            attrs.style = `width: ${width}`;
+                        }
+                        return attrs;
+                    },
+                },
+            };
+        },
+    });
     let editor;
     let editorContainer;
     let bubbleMenuContainer;
@@ -37,7 +55,7 @@
     const currentColor = writable('#000000');
     const currentFontFamily = writable(false);
     const currentStyle = writable('P'); // Default to Paragraph
-
+    const mediaLibraryUrl = writable('');
     let localColor = '#000000';
 
     onMount(() => {
@@ -45,16 +63,22 @@
             element: editorContainer,
             extensions: [
                 StarterKit,
-                Image.configure({
-                    inline: true,
-                }),
-
+                CustomImage,
                 TextStyle,
                 Color,
                 TextAlign.configure({
                     types: ['heading', 'paragraph'],
-                }), ,
+                }),
                 FontFamily,
+                BubbleMenu.configure({
+                    element: bubbleMenuContainer, // Attach the bubble menu to this element
+                    tippyOptions: {
+                        placement: 'top',
+                    },
+                    shouldShow: ({ editor, state, node }) => {
+                        return editor.isActive('image'); // Show only if an image is selected
+                    },
+                }),
             ],
             content: '',
             onUpdate: updateButtonStates,
@@ -81,8 +105,17 @@
         });
         Coloris.setInstance('#color-picker-input', {
             theme: 'polaroid',
-            swatchesOnly: true
+            swatchesOnly: true,
+            wrap: false,
+
         });
+        const editorEl = document.querySelector('#editor');
+        if (editorEl !== undefined && editorEl.getAttribute('data-media-library-url') !== null) {
+            mediaLibraryUrl.set(editorEl.getAttribute('data-media-library-url'));
+            console.log('Media Library URL', mediaLibraryUrl);
+        } else {
+            console.error('No media library URL provided', editorEl);
+        }
         editor.commands.setContent(document.querySelector('#content_page_editor_content').value);
     });
 
@@ -96,9 +129,9 @@
         isItalic.set(editor.isActive('italic'));
         isStrike.set(editor.isActive('strike'));
         isParagraph.set(editor.isActive('paragraph'));
-        isTextAlignLeft.set(editor.isActive('textAlign', {left: true}));
-        isTextAlignCenter.set(editor.isActive('textAlign', {center: true}));
-        isTextAlignRight.set(editor.isActive('textAlign', {right: true}));
+        isTextAlignLeft.set(editor.isActive({textAlign: 'left'}));
+        isTextAlignCenter.set(editor.isActive({textAlign: 'center'}));
+        isTextAlignRight.set(editor.isActive({textAlign : 'right'}));
         isText.set(editor.isActive('text'));
         isHeading1.set(editor.isActive('heading', {level: 1}));
         isHeading2.set(editor.isActive('heading', {level: 2}));
@@ -122,6 +155,10 @@
         } else {
             currentStyle.set('P');
         }
+    }
+
+    function setImageSize(size) {
+        editor.chain().focus().updateAttributes('image', { width: size }).run();
     }
 
     function toggleBold() {
@@ -153,12 +190,56 @@
     }
 
     function insertImage() {
-        const url = prompt("URL de l'image");
-        if (url) {
-            editor.chain().focus().setImage({src: url}).run();
-        }
+        // editor.chain().focus().setImage({ src: url, width: '100%' }).run();
+        Swal.fire({
+            title: 'Insert Image',
+            input: 'url',
+            placeholder: 'Enter the URL of the image',
+            inputAttributes: {
+                autocapitalize: 'off'
+            },
+            showCancelButton: true,
+            confirmButtonText: 'Insert',
+            showLoaderOnConfirm: true,
+            preConfirm: (url) => {
+                return editor.chain().focus().setImage({ src: url, width: '100%' }).run();
+            },
+        });
     }
 
+    function insertImageFromMediaLibrary() {
+        // get html content with fetch from media library url and display html in swal big modal
+        Swal.fire({
+            title: 'Insert Image from Media Library',
+            html: '<div class="w" id="media-library-content"></div>',
+            showCancelButton: false,
+            showConfirmButton: false,
+            showCloseButton: true,
+            //with bulma class make a full width modal
+            customClass: {
+                popup: 'is-fullwidth media-library-popup'
+            },
+            showLoaderOnConfirm: true,
+            didOpen: () => {
+                console.log('Media Library URL', $mediaLibraryUrl);
+                Swal.showLoading();
+                fetch($mediaLibraryUrl)
+                    .then(response => response.text())
+                    .then(data => {
+                        document.querySelector('#media-library-content').innerHTML = data;
+                        document.querySelectorAll('#media-library-content div[data-media-url]').forEach((img) => {
+                            img.addEventListener('click', (event) => {
+                                const url = event.target.closest('div[data-media-url]').getAttribute('data-media-url');
+                                editor.chain().focus().setImage({ src: url, width: '100%' }).run();
+                                Swal.close();
+                            });
+                        });
+                        Swal.hideLoading();
+
+                    });
+            }
+        });
+    }
     function insertBulletList() {
         editor.chain().focus().toggleBulletList().run();
     }
@@ -257,12 +338,47 @@
         </div>
         <ToolbarButton active={$isBulletList} onClick={insertBulletList} icon={'ri-list-unordered'} label="UL"/>
         <ToolbarButton active={$isOrderedList} onClick={insertOrderedList} icon={'ri-list-ordered'} label="OL"/>
+<!--     Button for open media library image chooser   -->
+        <ToolbarButton onClick={insertImageFromMediaLibrary} icon={'ri-image-line'} label="MEDIA"/>
         <ToolbarButton onClick={insertImage} icon={'ri-image-add-line'} label="IMG"/>
         <ToolbarButton active={$isBlockquote} onClick={insertBlockquote} icon={'ri-quote-text'} label="BLOCKQUOTE"/>
         <ToolbarButton active={$isTextAlignLeft} onClick={toggleTextAlignLeft} icon={"ri-align-left"}/>
         <ToolbarButton active={$isTextAlignCenter} onClick={toggleTextAlignCenter} icon={"ri-align-center"}/>
         <ToolbarButton active={$isTextAlignRight} onClick={toggleTextAlignRight} icon={"ri-align-right"}/>
+        <label for="color-picker-input" id="color-picker-input-label">
+            <i class="ri-brush-2-line" style="color: {$currentColor};" ></i>
         <input type="text" class="coloris" id="color-picker-input" value={$currentColor} on:change={setColor}/>
+        </label>
+    </div>
+    <div bind:this={bubbleMenuContainer} class="bubble-menu">
+<!--        <button on:click={() => setImageSize('25%')}>25%</button>-->
+<!--        <button on:click={() => setImageSize('50%')}>50%</button>-->
+<!--        <button on:click={() => setImageSize('75%')}>75%</button>-->
+<!--        <button on:click={() => setImageSize('100%')}>100%</button>-->
+        <input class="slider is-fullwidth is-small is-circle" type="range" min="25" max="100" step="25" value="100" on:change={(e) => setImageSize(e.target.value + '%')}/>
     </div>
     <div bind:this={editorContainer} class="editor"></div>
 </div>
+
+<style>
+
+    .bubble-menu {
+        display: flex;
+        gap: 10px;
+        background-color: white;
+        border: 1px solid #ddd;
+        padding: 5px;
+        border-radius: 4px;
+    }
+    .bubble-menu button {
+        cursor: pointer;
+        padding: 5px 10px;
+        background-color: #f0f0f0;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+    }
+    .bubble-menu button:hover {
+        background-color: #e0e0e0;
+    }
+
+</style>
