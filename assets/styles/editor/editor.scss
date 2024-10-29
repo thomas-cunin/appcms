@@ -3,6 +3,15 @@
 @use "themes/basic.scss";
 @use "coloris/coloris.scss";
 
+.clr-picker{
+  z-index: 9999999;
+}
+#color-picker-input{
+  visibility: hidden;
+  width:1px;
+  position: absolute;
+  right: 40px;
+}
 .editor-container{
   caret-color: #000;
   outline-width: 0;
