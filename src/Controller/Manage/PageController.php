@@ -7,6 +7,7 @@ use App\Entity\ContentPage;
 use App\Entity\Menu;
 use App\Entity\MenuItem;
 use App\Entity\Page;
+use App\Form\ContentPageType;
 use App\Form\DeletePageType;
 use App\Form\PageSettingsType;
 use App\Service\PageTypeService;
@@ -98,8 +99,19 @@ class PageController extends AbstractController
     ): Response
     {
 
+        $form = $this->createForm(ContentPageType::class, $page, [
+            'action' => $this->generateUrl('app_edit_page', ['page' => $page->getUuid()]),
+        ]);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->persist($page);
+            $em->flush();
+            return $this->redirectToRoute('app_edit_page', ['page' => $page->getUuid()]);
+        }
         return $this->render('page_edit/content_page_edit.html.twig', [
             'page' => $page,
+            'form' => $form->createView(),
         ]);
     }
 

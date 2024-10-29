@@ -14,6 +14,7 @@
     import {writable} from 'svelte/store';
     import Coloris from "@melloware/coloris";
     import Swal from 'sweetalert2';
+    import FloatingMenu from '@tiptap/extension-floating-menu';
 
     const CustomImage = Image.extend({
         addAttributes() {
@@ -36,6 +37,7 @@
     let editor;
     let editorContainer;
     let bubbleMenuContainer;
+    let floatingMenuContainer;
 
     const isBold = writable(false);
     const isItalic = writable(false);
@@ -79,9 +81,23 @@
                         return editor.isActive('image'); // Show only if an image is selected
                     },
                 }),
+                BubbleMenu.configure({
+                    element: floatingMenuContainer, // Attach the bubble menu to this element
+                    tippyOptions: {
+                        duration: 100,
+                    },
+                    shouldShow: ({ editor, state, node }) => {
+                        // Show the bubble menu if slelection is not empty
+                        const { from, to } = state.selection;
+                        return (to - from >= 1) && (editor.isActive('paragraph') || editor.isActive('heading'));
+                    },
+                }),
             ],
             content: '',
-            onUpdate: updateButtonStates,
+            onUpdate: ()=> {
+                document.querySelector('#content_page_content').value = editor.getHTML();
+                updateButtonStates();
+            },
             onTransaction: updateButtonStates,
         });
 
@@ -116,7 +132,7 @@
         } else {
             console.error('No media library URL provided', editorEl);
         }
-        editor.commands.setContent(document.querySelector('#content_page_editor_content').value);
+        editor.commands.setContent(document.querySelector('#content_page_content').value);
     });
 
     function updateTextArea() {
@@ -298,6 +314,7 @@
 </script>
 
 <div>
+    <div class="floating-menu" bind:this={floatingMenuContainer}>
     <div class="toolbar">
         <ToolbarButton active={$isBold} onClick={toggleBold} icon={'ri-bold'} label="B"/>
         <ToolbarButton active={$isItalic} onClick={toggleItalic} icon={'ri-italic'} label="I"/>
@@ -349,6 +366,7 @@
             <i class="ri-brush-2-line" style="color: {$currentColor};" ></i>
         <input type="text" class="coloris" id="color-picker-input" value={$currentColor} on:change={setColor}/>
         </label>
+    </div>
     </div>
     <div bind:this={bubbleMenuContainer} class="bubble-menu">
 <!--        <button on:click={() => setImageSize('25%')}>25%</button>-->
