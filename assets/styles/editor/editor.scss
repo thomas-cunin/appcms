@@ -3,18 +3,36 @@
 @use "themes/basic.scss";
 @use "coloris/coloris.scss";
 
+.clr-picker{
+  z-index: 9999999;
+}
+#color-picker-input{
+  visibility: hidden;
+  width:1px;
+  position: absolute;
+  right: 40px;
+}
 .editor-container{
   caret-color: #000;
   outline-width: 0;
   width: 100%;
+  .floating-menu {
+    display: flex;
+    background-color: gray;
+    padding: 0.1rem;
+    border-radius: 0.5rem;
+  }
     .content-editor{
       .editor{
+        .tiptap:focus-visible{
+          outline: none!important;
+        }
         div[contenteditable="true"]{
-          outline: none;
+          outline: none!important;
           > * {
             margin-left: auto;
             margin-right: auto;
-            max-width: 42rem;
+            //max-width: 42rem;
           }
         }
 

@@ -1,9 +1,41 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-<div id="editor" data-media-library-url="{{ url('media_library_list_all',{type: constant('App\\Entity\\Media::TYPE_IMAGE')}) }} ">
+    <div class="container h-100" >
+        {{ form_start(form,{'attr':{"class":'h-100'}}) }}
+        <div class="columns is-centered h-100 mt-0">
+            <div class="column is-8 pt-4">
+                {{ form_row(form.name,{'attr':{"class":' is-medium'}}) }}
 
-</div>
+                <div id="editor-content" class="editor-container">
+                    {{ form_row(form.content,{'attr':{"class":' is-hidden'}}) }}
+                    <div id="editor"
+                         class="content-editor"
+                         data-media-library-url="{{ url('media_library_list_all',{type: constant('App\\Entity\\Media::TYPE_IMAGE')}) }} ">
+
+                    </div>
+
+                </div>
+
+                <div class="sticky-submit w-100">
+                    <div class="is-flex is-gap-2 mt-4">
+                        {{ form_row(form.submit) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="column is-4 has-divider-border h-100 pt-4 has-background-grey-lighter">
+                <!-- Publish button and options -->
+                <div class="is-flex is-flex-direction-column mt-4">
+                    <div>
+                        {{ form_row(form.description) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{ form_end(form) }}
+    </div>
+
 {% endblock %}
 
 {% block javascripts %}

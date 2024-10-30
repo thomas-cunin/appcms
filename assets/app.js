@@ -20,12 +20,9 @@ $(document).ready(function () {
 
 document.addEventListener('click', function (e) {
 
-    console.log('click', e.target);
-    console.log('closest', e.target.closest('.dropdown-trigger'));
     if (null === e.target.closest('.dropdown-trigger')) return;
     // stop immediate propagation
     e.stopImmediatePropagation();
-    console.log('dropdown', e.target.closest('.dropdown'));
     e.target.closest('.dropdown').classList.toggle('is-active');
 });
 
@@ -52,4 +49,26 @@ document.addEventListener('keydown', function (event) {
     if (e.key === 'Esc' || e.key === 'Escape') {
         closeDropdowns();
     }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const submitContainer = document.querySelector('.sticky-submit');
+    const editor = document.getElementById('editor-content');
+
+    if (!submitContainer || !editor) {
+        return;
+    }
+    function checkSticky() {
+        const editorBottom = editor.getBoundingClientRect().bottom;
+        const viewportHeight = window.innerHeight;
+
+        if (editorBottom < viewportHeight) {
+            submitContainer.style.position = 'relative';
+        } else {
+            submitContainer.style.position = 'sticky';
+        }
+    }
+
+    window.addEventListener('scroll', checkSticky);
+    window.addEventListener('resize', checkSticky);
 });

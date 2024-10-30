@@ -4,15 +4,23 @@
 @use "app_structure/menu_structure.scss";
 @use "editor/editor.scss";
 @use "media_library/media-library.scss";
+@use "page_edit/page_edit.scss";
 
 body{
-  background-color: #efefef;
+  background-color: white;
 }
-
+.h-100{
+    height: 100%;
+}
+.w-100{
+    width: 100%;
+}
 .sidebar {
   background-color: white;
   padding: 20px;
   width: 240px;
+  padding-top: 52px;
+  position: fixed;
   // set border right to 1px solid with bulma's $border-color
   border-right: 2px solid #6bc752;
   // add inside shadow with bulma's $box-shadow
@@ -21,6 +29,7 @@ body{
 }
 .section {
   width: calc(100% - 240px);
+    margin-left: 240px;
 }
 
 /* Pour les écrans de bureau */
@@ -56,3 +65,4 @@ body{
     margin-bottom: 1rem;
   }
 }
+

@@ -14,6 +14,7 @@
     import {writable} from 'svelte/store';
     import Coloris from "@melloware/coloris";
     import Swal from 'sweetalert2';
+    import FloatingMenu from '@tiptap/extension-floating-menu';
 
     const CustomImage = Image.extend({
         addAttributes() {
@@ -23,7 +24,7 @@
                     default: null,
                     parseHTML: element => element.style.width || element.getAttribute('width') || null,
                     renderHTML: attributes => {
-                        const { width, ...attrs } = attributes;
+                        const {width, ...attrs} = attributes;
                         if (width) {
                             attrs.style = `width: ${width}`;
                         }
@@ -35,7 +36,10 @@
     });
     let editor;
     let editorContainer;
-    let bubbleMenuContainer;
+    let imageBubbleMenuContainer;
+    let inlineToolsBubbleMenuContainer;
+    let floatingAddMenuContainer; // Add this to your script section
+
 
     const isBold = writable(false);
     const isItalic = writable(false);
@@ -59,6 +63,8 @@
     let localColor = '#000000';
 
     onMount(() => {
+
+
         editor = new Editor({
             element: editorContainer,
             extensions: [
@@ -71,17 +77,40 @@
                 }),
                 FontFamily,
                 BubbleMenu.configure({
-                    element: bubbleMenuContainer, // Attach the bubble menu to this element
+                    element: imageBubbleMenuContainer, // Attach the bubble menu to this element
+                    pluginKey: 'image',
                     tippyOptions: {
                         placement: 'top',
                     },
-                    shouldShow: ({ editor, state, node }) => {
+                    shouldShow: ({editor, state, node}) => {
                         return editor.isActive('image'); // Show only if an image is selected
+                    },
+                }),
+                BubbleMenu.configure({
+                    element: inlineToolsBubbleMenuContainer, // Attach the bubble menu to this element
+                    pluginKey: 'inline-tools',
+                    tippyOptions: {
+                        duration: 100,
+                    },
+                    shouldShow: ({editor, state, node}) => {
+                        // Show the bubble menu if slelection is not empty
+                        const {from, to} = state.selection;
+                        return (to - from >= 1) && (editor.isActive('paragraph') || editor.isActive('heading'));
+                    },
+                }),
+                FloatingMenu.configure({
+                    element: floatingAddMenuContainer,
+                    shouldShow: null,
+                    tippyOptions: {
+                        placement: 'left',
                     },
                 }),
             ],
             content: '',
-            onUpdate: updateButtonStates,
+            onUpdate: () => {
+                document.querySelector('#content_page_content').value = editor.getHTML();
+                updateButtonStates();
+            },
             onTransaction: updateButtonStates,
         });
 
@@ -107,7 +136,6 @@
             theme: 'polaroid',
             swatchesOnly: true,
             wrap: false,
-
         });
         const editorEl = document.querySelector('#editor');
         if (editorEl !== undefined && editorEl.getAttribute('data-media-library-url') !== null) {
@@ -116,7 +144,7 @@
         } else {
             console.error('No media library URL provided', editorEl);
         }
-        editor.commands.setContent(document.querySelector('#content_page_editor_content').value);
+        editor.commands.setContent(document.querySelector('#content_page_content').value);
     });
 
     function updateTextArea() {
@@ -131,7 +159,7 @@
         isParagraph.set(editor.isActive('paragraph'));
         isTextAlignLeft.set(editor.isActive({textAlign: 'left'}));
         isTextAlignCenter.set(editor.isActive({textAlign: 'center'}));
-        isTextAlignRight.set(editor.isActive({textAlign : 'right'}));
+        isTextAlignRight.set(editor.isActive({textAlign: 'right'}));
         isText.set(editor.isActive('text'));
         isHeading1.set(editor.isActive('heading', {level: 1}));
         isHeading2.set(editor.isActive('heading', {level: 2}));
@@ -158,7 +186,7 @@
     }
 
     function setImageSize(size) {
-        editor.chain().focus().updateAttributes('image', { width: size }).run();
+        editor.chain().focus().updateAttributes('image', {width: size}).run();
     }
 
     function toggleBold() {
@@ -202,7 +230,7 @@
             confirmButtonText: 'Insert',
             showLoaderOnConfirm: true,
             preConfirm: (url) => {
-                return editor.chain().focus().setImage({ src: url, width: '100%' }).run();
+                return editor.chain().focus().setImage({src: url, width: '100%'}).run();
             },
         });
     }
@@ -230,7 +258,7 @@
                         document.querySelectorAll('#media-library-content div[data-media-url]').forEach((img) => {
                             img.addEventListener('click', (event) => {
                                 const url = event.target.closest('div[data-media-url]').getAttribute('data-media-url');
-                                editor.chain().focus().setImage({ src: url, width: '100%' }).run();
+                                editor.chain().focus().setImage({src: url, width: '100%'}).run();
                                 Swal.close();
                             });
                         });
@@ -240,6 +268,7 @@
             }
         });
     }
+
     function insertBulletList() {
         editor.chain().focus().toggleBulletList().run();
     }
@@ -264,6 +293,11 @@
         const color = event.target.value;
         currentColor.set(color);
         editor.chain().focus().setColor(color).run();
+    }
+
+    function handleColorIconClick(event) {
+        event.preventDefault();
+        document.querySelector('#color-picker-input').click();
     }
 
     function getCurrentSelectionTypeIcon() {
@@ -298,64 +332,102 @@
 </script>
 
 <div>
-    <div class="toolbar">
-        <ToolbarButton active={$isBold} onClick={toggleBold} icon={'ri-bold'} label="B"/>
-        <ToolbarButton active={$isItalic} onClick={toggleItalic} icon={'ri-italic'} label="I"/>
-        <ToolbarButton active={$isStrike} onClick={toggleStrike} icon={'ri-strikethrough'} label="S"/>
+    <div bind:this={floatingAddMenuContainer} class="floating-add-menu" style="visibility: hidden;">
         <div class="dropdown is-hoverable">
             <div class="dropdown-trigger">
-                <button class="button is-white is-small" aria-haspopup="true" aria-controls="dropdown-menu">
-                    <span>{$headingTexts[$currentStyle]}</span>
-                    <span class="icon is-small">
-                    <i class="ri-arrow-down-s-line"></i>
-                </span>
+                <button class="button is-small is-square mr-2" on:click|preventDefault>
+        <span class="icon">
+          <i class="ri-add-line"></i>
+        </span>
                 </button>
             </div>
-            <div class="dropdown-menu" id="dropdown-menu" role="menu">
+
+            <div class="dropdown-menu" role="menu">
                 <div class="dropdown-content">
-                    <a href="#"
-                       class="dropdown-item { $isHeading1 ? 'is-active' : '' }"
-                       on:click|preventDefault={() => insertHeading(1)}>
-                        <h1>Titre 1</h1>
+                <a href="#" class="dropdown-item" on:click|preventDefault={()=>{insertHeading(1)}}>
+          <span class="icon">
+            <i class="ri-h-1"></i>
+          </span>
+                    <span>Heading 1</span>
+                </a>
+                <a href="#" class="dropdown-item" on:click|preventDefault={()=>{insertHeading(2)}}>
+            <span class="icon">
+                <i class="ri-h-2"></i>
+            </span>
+                    <span>Heading 2</span>
+                </a>
+                <a href="#" class="dropdown-item" on:click|preventDefault={()=>{insertHeading(3)}}>
+            <span class="icon">
+                <i class="ri-h-3"></i>
+            </span>
+                    <span>Heading 3</span>
+                </a>
+                <hr class="dropdown-divider"/>
+                <a href="#" class="dropdown-item" on:click|preventDefault={()=>{insertBulletList()}}>
+          <span class="icon">
+            <i class="ri-list-unordered"></i>
+          </span>
+                    <span>Add List</span>
+                </a>
+                <a href="#" class="dropdown-item" on:click|preventDefault={()=>{insertOrderedList()}}>
+            <span class="icon">
+                <i class="ri-list-ordered-2"></i>
+            </span>
+                    <span>Add Ordered List</span>
+                </a>
+                <hr class="dropdown-divider"/>
+                    <a href="#" class="dropdown-item" on:click|preventDefault={()=>{insertImage()}}>
+          <span class="icon">
+            <i class="ri-image-line"></i>
+          </span>
+                        <span>Add Image from url</span>
                     </a>
-                    <a href="#"
-                       class="dropdown-item { $isHeading2 ? 'is-active' : '' }"
-                       on:click|preventDefault={() => insertHeading(2)}>
-                        <h2>Titre 2</h2>
+                    <a href="#" class="dropdown-item" on:click|preventDefault={()=>{insertImageFromMediaLibrary()}}>
+          <span class="icon">
+            <i class="ri-image-line"></i>
+          </span>
+                        <span>Add Image</span>
                     </a>
-                    <a href="#"
-                       class="dropdown-item { $isHeading3 ? 'is-active' : '' }"
-                       on:click|preventDefault={() => insertHeading(3)}>
-                        <h3>Titre 3</h3>
+                    <hr class="dropdown-divider"/>
+                    <a href="#" class="dropdown-item" on:click|preventDefault={()=>{insertHorizontalRule()}}>
+            <span class="icon">
+                <i class="ri-sep-line"></i>
+            </span>
+                        <span>Add Horizontal Rule</span>
                     </a>
-                    <a href="#"
-                       class="dropdown-item { $isParagraph ? 'is-active' : '' }"
-                       on:click|preventDefault={setParagraph}>
-                        <p>Paragraphe</p>
+                    <hr class="dropdown-divider"/>
+
+                    <a href="#" class="dropdown-item" on:click|preventDefault={()=>{insertBlockquote()}}>
+          <span class="icon">
+            <i class="ri-quote-text"></i>
+          </span>
+                        <span>Add Quote</span>
                     </a>
                 </div>
             </div>
         </div>
-        <ToolbarButton active={$isBulletList} onClick={insertBulletList} icon={'ri-list-unordered'} label="UL"/>
-        <ToolbarButton active={$isOrderedList} onClick={insertOrderedList} icon={'ri-list-ordered'} label="OL"/>
-<!--     Button for open media library image chooser   -->
-        <ToolbarButton onClick={insertImageFromMediaLibrary} icon={'ri-image-line'} label="MEDIA"/>
-        <ToolbarButton onClick={insertImage} icon={'ri-image-add-line'} label="IMG"/>
-        <ToolbarButton active={$isBlockquote} onClick={insertBlockquote} icon={'ri-quote-text'} label="BLOCKQUOTE"/>
-        <ToolbarButton active={$isTextAlignLeft} onClick={toggleTextAlignLeft} icon={"ri-align-left"}/>
-        <ToolbarButton active={$isTextAlignCenter} onClick={toggleTextAlignCenter} icon={"ri-align-center"}/>
-        <ToolbarButton active={$isTextAlignRight} onClick={toggleTextAlignRight} icon={"ri-align-right"}/>
-        <label for="color-picker-input" id="color-picker-input-label">
-            <i class="ri-brush-2-line" style="color: {$currentColor};" ></i>
-        <input type="text" class="coloris" id="color-picker-input" value={$currentColor} on:change={setColor}/>
-        </label>
     </div>
-    <div bind:this={bubbleMenuContainer} class="bubble-menu">
-<!--        <button on:click={() => setImageSize('25%')}>25%</button>-->
-<!--        <button on:click={() => setImageSize('50%')}>50%</button>-->
-<!--        <button on:click={() => setImageSize('75%')}>75%</button>-->
-<!--        <button on:click={() => setImageSize('100%')}>100%</button>-->
-        <input class="slider is-fullwidth is-small is-circle" type="range" min="25" max="100" step="25" value="100" on:change={(e) => setImageSize(e.target.value + '%')}/>
+    <div class="floating-menu" bind:this={inlineToolsBubbleMenuContainer}>
+        <div class="toolbar">
+            <ToolbarButton active={$isBold} onClick={toggleBold} icon={'ri-bold'} label="B"/>
+            <ToolbarButton active={$isItalic} onClick={toggleItalic} icon={'ri-italic'} label="I"/>
+            <ToolbarButton active={$isStrike} onClick={toggleStrike} icon={'ri-strikethrough'} label="S"/>
+            <ToolbarButton active={$isTextAlignLeft} onClick={toggleTextAlignLeft} icon={"ri-align-left"}/>
+            <ToolbarButton active={$isTextAlignCenter} onClick={toggleTextAlignCenter} icon={"ri-align-center"}/>
+            <ToolbarButton active={$isTextAlignRight} onClick={toggleTextAlignRight} icon={"ri-align-right"}/>
+            <button class="tool" type="button" on:click|preventDefault={(e) => handleColorIconClick(e)}>
+                <i class="ri-font-color" style="color: {$currentColor};"></i>
+            </button>
+                <input type="text" class="coloris" id="color-picker-input" value={$currentColor} on:change={setColor}/>
+        </div>
+    </div>
+    <div bind:this={imageBubbleMenuContainer} class="bubble-menu">
+        <!--        <button on:click={() => setImageSize('25%')}>25%</button>-->
+        <!--        <button on:click={() => setImageSize('50%')}>50%</button>-->
+        <!--        <button on:click={() => setImageSize('75%')}>75%</button>-->
+        <!--        <button on:click={() => setImageSize('100%')}>100%</button>-->
+        <input class="slider is-fullwidth is-small is-circle" type="range" min="25" max="100" step="25" value="100"
+               on:change={(e) => setImageSize(e.target.value + '%')}/>
     </div>
     <div bind:this={editorContainer} class="editor"></div>
 </div>
@@ -370,6 +442,7 @@
         padding: 5px;
         border-radius: 4px;
     }
+
     .bubble-menu button {
         cursor: pointer;
         padding: 5px 10px;
@@ -377,6 +450,7 @@
         border: 1px solid #ddd;
         border-radius: 3px;
     }
+
     .bubble-menu button:hover {
         background-color: #e0e0e0;
     }
