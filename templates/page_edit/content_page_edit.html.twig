@@ -1,14 +1,19 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <div class="container h-100" >
+    <div class=" h-100">
         {{ form_start(form,{'attr':{"class":'h-100'}}) }}
-        <div class="columns is-centered h-100 mt-0">
-            <div class="column is-8 pt-4">
-                {{ form_row(form.name,{'attr':{"class":' is-medium'}}) }}
+        <div class="is-centered h-100 mt-0 is-display-flex is-flex-direction-row">
+            <div class="is-flex is-flex-direction-row is-justify-content-center w-100 is-overflow-y-scroll h-100">
+            <div class="pt-4 px-3 h-100" style="flex: 1;-webkit-box-flex: 1;
+  -ms-flex: 1;
+  max-width: 744px;
+  width: 700px;
+  margin: 32px 80px 80px;">
+                {{ form_row(form.name,{'attr':{"class":' is-medium has-no-border is-large'}, 'label_attr':{"class":'is-hidden'}}) }}
 
                 <div id="editor-content" class="editor-container">
-                    {{ form_row(form.content,{'attr':{"class":' is-hidden'}}) }}
+                    {{ form_row(form.content,{'attr':{"class":' is-hidden'}, 'label_attr':{"class":'is-hidden'}}) }}
                     <div id="editor"
                          class="content-editor"
                          data-media-library-url="{{ url('media_library_list_all',{type: constant('App\\Entity\\Media::TYPE_IMAGE')}) }} ">
@@ -17,16 +22,14 @@
 
                 </div>
 
-                <div class="sticky-submit w-100">
-                    <div class="is-flex is-gap-2 mt-4">
-                        {{ form_row(form.submit) }}
-                    </div>
-                </div>
+
+            </div>
             </div>
 
-            <div class="column is-4 has-divider-border h-100 pt-4 has-background-grey-lighter">
+            <div class="has-divider-border h-100 px-3 pt-4 has-background-grey-lighter" style="min-width: 384px; flex: 1">
                 <!-- Publish button and options -->
                 <div class="is-flex is-flex-direction-column mt-4">
+                    {{ form_row(form.submit,{'attr':{'class':'w-100 text-center'}}) }}
                     <div>
                         {{ form_row(form.description) }}
                     </div>

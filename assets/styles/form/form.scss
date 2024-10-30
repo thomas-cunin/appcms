@@ -1,0 +1,11 @@
+input.has-no-border {
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0.5rem;
+  width: 100%;
+  border-bottom: 1px solid #e8e8e8;
+  &:focus {
+    border: none;
+  }
+}
