@@ -3,6 +3,8 @@
     import {Editor} from '@tiptap/core';
     import ToolbarButton from "./components/toolbar/ToolbarButton.svelte";
     import StarterKit from '@tiptap/starter-kit';
+    import Focus from '@tiptap/extension-focus'
+
     import Image from '@tiptap/extension-image';
     import {Color} from '@tiptap/extension-color';
     import TextAlign from '@tiptap/extension-text-align';
@@ -76,6 +78,10 @@
                     types: ['heading', 'paragraph'],
                 }),
                 FontFamily,
+                Focus.configure({
+                    className: 'has-focus',
+                    mode: 'all',
+                }),
                 BubbleMenu.configure({
                     element: imageBubbleMenuContainer, // Attach the bubble menu to this element
                     pluginKey: 'image',

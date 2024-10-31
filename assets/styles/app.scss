@@ -5,6 +5,7 @@
 @use "editor/editor.scss";
 @use "media_library/media-library.scss";
 @use "page_edit/page_edit.scss";
+@use "form/form.scss";
 
 body{
   background-color: white;
@@ -15,6 +16,10 @@ body{
 .w-100{
     width: 100%;
 }
+.has-soft-border-bottom{
+    border-bottom: 1px solid #ededed;
+}
+
 .sidebar {
   background-color: white;
   padding: 20px;
@@ -28,8 +33,8 @@ body{
   height: 100vh;
 }
 .section {
-  width: calc(100% - 240px);
-    margin-left: 240px;
+  //width: calc(100% - 240px);
+  //  margin-left: 240px;
 }
 
 /* Pour les écrans de bureau */

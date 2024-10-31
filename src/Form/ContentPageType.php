@@ -19,6 +19,7 @@ class ContentPageType extends AbstractType
         $builder
             ->add('name',TextType::class, [
                 'required' => true,
+                'attr' => ['placeholder' => 'Titre de la page'],
             ])
             ->add('content',TextareaType::class, [
                 'required' => false,
