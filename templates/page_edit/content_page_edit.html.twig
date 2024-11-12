@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <div class="h-100" style="height: calc(100vh - 54px)">
+    <div class="h-100" style="max-height: calc(100vh - 54px)">
         {{ form_start(form,{'attr':{"class":'h-100'}}) }}
         <div class="is-centered h-100 mt-0 is-display-flex is-flex-direction-row">
             <div class="is-flex is-flex-direction-row is-justify-content-center w-100 is-overflow-y-scroll h-100">
@@ -30,7 +30,22 @@
                 <!-- Publish button and options -->
                 <div class="is-flex is-flex-direction-column mt-4">
                     {{ form_row(form.submit,{'attr':{'class':'w-100 text-center'}}) }}
-                    <div>
+                    <div class="mt-2">
+                        <div class="field">
+                            {{ form_label(form.slug) }}
+                            <div class="field has-addons">
+                                <p class="control">
+                                    <a class="button is-static">
+                                        www.appcms.fr/
+                                    </a>
+                                </p>
+                                {{ form_widget(form.slug) }}
+                            </div>
+                            {{ form_errors(form.slug) }}
+                            {{ form_help(form.slug) }}
+                        </div>
+                    </div>
+                    <div class="mt-2">
                         {{ form_row(form.description) }}
                     </div>
                 </div>

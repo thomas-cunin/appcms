@@ -9,12 +9,61 @@
 </style>
 
 <div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+    <h1>Paramètres</h1>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>C:/wamp64/www/appcms/src/Controller/ApplicationSettingsController.php</code></li>
-        <li>Your template at <code>C:/wamp64/www/appcms/templates/application_settings/index.html.twig</code></li>
-    </ul>
+    <div class="tabs-wrapper">
+        <div class="tabs is-boxed">
+            <ul>
+                <li class="is-active">
+                    <a>
+        <span class="icon is-small"
+        ><i class="fas fa-image" aria-hidden="true"></i
+            ></span>
+                        <span>Pictures</span>
+                    </a>
+                </li>
+                <li>
+                    <a>
+        <span class="icon is-small"
+        ><i class="fas fa-music" aria-hidden="true"></i
+            ></span>
+                        <span>Music</span>
+                    </a>
+                </li>
+                <li>
+                    <a>
+        <span class="icon is-small"
+        ><i class="fas fa-film" aria-hidden="true"></i
+            ></span>
+                        <span>Videos</span>
+                    </a>
+                </li>
+                <li>
+                    <a>
+        <span class="icon is-small"
+        ><i class="far fa-file-alt" aria-hidden="true"></i
+            ></span>
+                        <span>Documents</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="tabs-content">
+        <ul>
+            <li class="is-active">
+                <h1>Pictures</h1>
+            </li>
+            <li>
+                <h1>Music</h1>
+            </li>
+            <li>
+                <h1>Videos</h1>
+            </li>
+            <li>
+                <h1>Documents</h1>
+            </li>
+        </ul>
+    </div>
 </div>
 {% endblock %}

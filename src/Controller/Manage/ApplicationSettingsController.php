@@ -11,7 +11,7 @@ class ApplicationSettingsController extends AbstractController
     #[Route('/settings', name: 'app_global_settings')]
     public function index(): Response
     {
-        return $this->render('application_settings/pages_types_panel.html.twig', [
+        return $this->render('application_settings/index.html.twig', [
             'controller_name' => 'ApplicationSettingsController',
         ]);
     }

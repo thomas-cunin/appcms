@@ -428,12 +428,12 @@
         </div>
     </div>
     <div bind:this={imageBubbleMenuContainer} class="bubble-menu">
-        <!--        <button on:click={() => setImageSize('25%')}>25%</button>-->
-        <!--        <button on:click={() => setImageSize('50%')}>50%</button>-->
-        <!--        <button on:click={() => setImageSize('75%')}>75%</button>-->
-        <!--        <button on:click={() => setImageSize('100%')}>100%</button>-->
-        <input class="slider is-fullwidth is-small is-circle" type="range" min="25" max="100" step="25" value="100"
-               on:change={(e) => setImageSize(e.target.value + '%')}/>
+                <button on:click={() => setImageSize('25%')}>25%</button>
+                <button on:click={() => setImageSize('50%')}>50%</button>
+                <button on:click={() => setImageSize('75%')}>75%</button>
+                <button on:click={() => setImageSize('100%')}>100%</button>
+<!--        <input class="slider is-fullwidth is-small is-circle" type="range" min="25" max="100" step="25" value="100"-->
+<!--               on:change={(e) => setImageSize(e.target.value + '%')}/>-->
     </div>
     <div bind:this={editorContainer} class="editor"></div>
 </div>

@@ -25,6 +25,15 @@ class ContentPageType extends AbstractType
                 'required' => false,
                 'empty_data' => '',
             ])
+            ->add('slug', TextType::class, [
+                'required' => true,
+                'empty_data' => '',
+                'attr' => [
+                    'maxlength' => 60,
+                    // add regex pattern
+                    'pattern' => '[a-z0-9-_]+',
+                ],
+            ])
             ->add('description',TextareaType::class, [
                 'required' => false,
                 'empty_data' => '',
